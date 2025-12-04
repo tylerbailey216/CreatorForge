@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CreatorForge – Fast Tools for Creators</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #05070b;
+      --bg-elevated: #101521;
+      --card: #151c2a;
+      --accent: #a0f0ff;
+      --accent-soft: #ea8bfa;
+      --accent-warm: #ffd59b;
+      --text: #f8f9ff;
+      --muted: #9ea8c4;
+      --danger: #ff6b81;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.7);
+      --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1d2950 0, #05070b 58%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1160px;
+      padding: 24px 16px 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: conic-gradient(
+        from 210deg,
+        #a0f0ff,
+        #ea8bfa,
+        #ffd59b,
+        #a0f0ff
+      );
+      box-shadow: 0 0 18px rgba(160, 240, 255, 0.6);
+      position: relative;
+      overflow: hidden;
+      animation: orbitGlow 8s linear infinite;
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: inherit;
+      background: rgba(5, 7, 11, 0.96);
+    }
+
+    .brand-mark-inner {
+      position: absolute;
+      inset: 7px;
+      border-radius: inherit;
+      border: 1px solid rgba(160, 240, 255, 0.65);
+      box-shadow: 0 0 14px rgba(160, 240, 255, 0.75);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-text-title {
+      font-size: 1.15rem;
+      letter-spacing: 0.05em;
+      font-weight: 650;
+    }
+
+    .brand-text-subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: var(--border-subtle);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(9, 13, 22, 0.75);
+      backdrop-filter: blur(12px);
+    }
+
+    .pill span.emoji {
+      font-size: 0.9rem;
+    }
+
+    .btn-outline {
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(160, 240, 255, 0.7);
+      background: rgba(6, 10, 20, 0.9);
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s ease, transform 0.15s ease,
+        box-shadow 0.2s ease;
+      box-shadow: 0 0 12px rgba(160, 240, 255, 0.25);
+    }
+
+    .btn-outline:hover {
+      background: rgba(23, 30, 50, 0.98);
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(160, 240, 255, 0.45);
+    }
+
+    .hero {
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: radial-gradient(circle at top left, #283555 0, #0b0f15 55%);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 18px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 3.1fr) minmax(0, 2.4fr);
+      gap: 20px;
+      align-items: center;
+    }
+
+    .hero-main-title {
+      font-size: 1.75rem;
+      line-height: 1.18;
+      margin-bottom: 8px;
+    }
+
+    .hero-main-title span.accent {
+      background: linear-gradient(120deg, #a0f0ff, #ea8bfa, #ffd59b);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-body {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      max-width: 430px;
+    }
+
+    .hero-body strong {
+      color: #dfe6ff;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .hero-tag {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(5, 9, 18, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      color: var(--muted);
+    }
+
+    .hero-footer-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .hero-visual {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(160, 240, 255, 0.28);
+      background: radial-gradient(circle at top, #304a6f 0, #0b1017 55%);
+      padding: 12px 14px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-visual-title {
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .hero-visual-main {
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      color: #e9f1ff;
+    }
+
+    .hero-visual-matrix {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      font-size: 0.7rem;
+    }
+
+    .matrix-chip {
+      border-radius: 999px;
+      background: rgba(7, 13, 26, 0.9);
+      border: 1px solid rgba(160, 240, 255, 0.42);
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: #cfd9ff;
+    }
+
+    .matrix-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #a0f0ff;
+      box-shadow: 0 0 8px rgba(160, 240, 255, 0.85);
+    }
+
+    .hero-visual-orbit {
+      position: absolute;
+      inset: -40%;
+      border-radius: 50%;
+      border: 1px dashed rgba(160, 240, 255, 0.18);
+      pointer-events: none;
+      animation: orbit 18s linear infinite;
+    }
+
+    .hero-visual-orbit:nth-child(1) { transform: scale(1.05); }
+    .hero-visual-orbit:nth-child(2) { transform: scale(1.35); opacity: 0.7; animation-duration: 26s; }
+    .hero-visual-orbit:nth-child(3) { transform: scale(1.7); opacity: 0.4; animation-duration: 34s; }
+
+    .section-title {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(160, 240, 255, 0.8);
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 880px) {
+      .hero {
+        grid-template-columns: minmax(0, 1.2fr);
+      }
+      .tool-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero {
+        padding: 16px;
+      }
+      .tool-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .tool-card {
+      border-radius: var(--radius-md);
+      border: var(--border-subtle);
+      background: radial-gradient(circle at top left, #242f45 0, #101621 60%);
+      padding: 12px 12px 12px;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.18s ease;
+    }
+
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(160, 240, 255, 0.15), transparent 55%);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      border-color: rgba(160, 240, 255, 0.35);
+    }
+
+    .tool-card:hover::before {
+      opacity: 1;
+    }
+
+    .tool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tool-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .tool-tag {
+      font-size: 0.65rem;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(5, 10, 18, 0.9);
+      border: 1px solid rgba(160, 240, 255, 0.35);
+      color: var(--muted);
+    }
+
+    .tool-body {
+      font-size: 0.78rem;
+      color: var(--muted);
+      min-height: 32px;
+    }
+
+    .tool-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      gap: 8px;
+    }
+
+    .tool-meta {
+      font-size: 0.7rem;
+      color: #8f9bb6;
+    }
+
+    .btn-small {
+      font-size: 0.75rem;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(160, 240, 255, 0.7);
+      background: rgba(5, 10, 18, 0.96);
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-small:hover:not(:disabled) {
+      background: rgba(23, 31, 53, 1);
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(160, 240, 255, 0.45);
+    }
+
+    .btn-small:disabled {
+      border-style: dashed;
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .workspace {
+      border-radius: var(--radius-lg);
+      border: var(--border-subtle);
+      background: linear-gradient(135deg, #141a23 0, #080b12 55%);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 14px 16px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 960px) {
+      .workspace {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .workspace {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: radial-gradient(circle at top left, #202939 0, #090c13 60%);
+      padding: 10px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 170px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .panel-title {
+      font-weight: 500;
+      color: #e3ebff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .panel-title span.emoji {
+      font-size: 0.92rem;
+    }
+
+    label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    input[type="file"],
+    input[type="text"],
+    input[type="number"],
+    input[type="color"],
+    select,
+    textarea {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(7, 10, 18, 0.95);
+      color: var(--text);
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      outline: none;
+    }
+
+    input[type="color"] {
+      padding: 0;
+      height: 28px;
+      cursor: pointer;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 64px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #5b6680;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(160, 240, 255, 0.8);
+      box-shadow: 0 0 0 1px rgba(160, 240, 255, 0.28);
+    }
+
+    .inline-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .chip {
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 3px 8px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      cursor: pointer;
+      background: rgba(7, 10, 18, 0.95);
+      transition: border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+    }
+
+    .chip.active {
+      border-color: rgba(160, 240, 255, 0.9);
+      color: var(--accent);
+      box-shadow: 0 0 12px rgba(160, 240, 255, 0.45);
+      background: rgba(16, 26, 45, 0.98);
+    }
+
+    .result-box {
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(4, 7, 13, 0.95);
+      padding: 6px 7px;
+      font-size: 0.75rem;
+      color: #d3ddff;
+      max-height: 160px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(5, 10, 18, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+    }
+
+    .badge.success {
+      color: #8effc7;
+      border-color: rgba(142, 255, 199, 0.9);
+    }
+
+    .badge.danger {
+      color: var(--danger);
+      border-color: rgba(255, 107, 129, 0.9);
+    }
+
+    .badge.warn {
+      color: #ffd27b;
+      border-color: rgba(255, 210, 123, 0.9);
+    }
+
+    .tiny {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .planner-list {
+      list-style: none;
+      padding: 0;
+      margin: 4px 0 0;
+      max-height: 140px;
+      overflow: auto;
+      font-size: 0.78rem;
+    }
+
+    .planner-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
+    }
+
+    .planner-list li:last-child {
+      border-bottom: none;
+    }
+
+    .planner-title {
+      font-weight: 500;
+    }
+
+    .planner-meta {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .link-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .pill-soft {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(5, 10, 18, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .canvas-preview {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: radial-gradient(circle at top, #1a2236 0, #05070b 60%);
+      display: block;
+    }
+
+    .range-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .range-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+    }
+
+    .range-row span {
+      font-size: 0.72rem;
+      color: var(--muted);
+      min-width: 28px;
+      text-align: right;
+    }
+
+    @keyframes orbit {
+      from { transform: rotate(0deg) scale(1); }
+      to { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes orbitGlow {
+      0% { box-shadow: 0 0 12px rgba(160, 240, 255, 0.6); }
+      50% { box-shadow: 0 0 20px rgba(234, 139, 250, 0.9); }
+      100% { box-shadow: 0 0 12px rgba(160, 240, 255, 0.6); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">
+          <div class="brand-mark-inner"></div>
+        </div>
+        <div class="brand-text">
+          <div class="brand-text-title">CreatorForge</div>
+          <div class="brand-text-subtitle">
+            Fast, private tools for social media creators
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="pill">
+          <span class="emoji">🔒</span> On-device. No login. No tracking.
+        </div>
+        <button class="btn-outline" type="button" onclick="scrollToWorkspace()">
+          <span>Open workspace</span> <span>↘</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="hero-main-title">
+          Create more, <span class="accent">stress less.</span>
+        </div>
+        <div class="hero-body">
+          <strong>CreatorForge</strong> is a lightweight toolbox for resizing images,
+          crafting captions, watermarking drafts, checking links, and planning content—
+          all in your browser, with your files staying on your device.
+        </div>
+        <div class="hero-tags">
+          <span class="hero-tag">TikTok • Reels • Shorts</span>
+          <span class="hero-tag">Thumbnails & captions</span>
+          <span class="hero-tag">Local-only processing</span>
+        </div>
+        <div class="hero-footer-note">
+          Start by picking a quick tool below, or jump straight into the workspace.
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-visual-title">Creator flow snapshot</div>
+        <div class="hero-visual-main">
+          Resize thumbnail → add watermark → generate caption → scan brand link → plan post.
+        </div>
+        <div class="hero-visual-matrix">
+          <div class="matrix-chip">
+            <span class="matrix-dot"></span> IG 1080×1350
+          </div>
+          <div class="matrix-chip">
+            <span class="matrix-dot"></span> Reels 9:16
+          </div>
+          <div class="matrix-chip">
+            <span class="matrix-dot"></span> Safe link check
+          </div>
+          <div class="matrix-chip">
+            <span class="matrix-dot"></span> Hooks & captions
+          </div>
+          <div class="matrix-chip">
+            <span class="matrix-dot"></span> Idea vault
+          </div>
+          <div class="matrix-chip">
+            <span class="matrix-dot"></span> Watermark drafts
+          </div>
+        </div>
+        <div class="hero-visual-orbit"></div>
+        <div class="hero-visual-orbit"></div>
+        <div class="hero-visual-orbit"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">
+        <span class="dot"></span>
+        Quick tools
+      </div>
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Image Resize & Compress</div>
+            <div class="tool-tag">Image</div>
+          </div>
+          <div class="tool-body">
+            Drop a photo, pick a social preset, and download a ready-to-post
+            version in seconds.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">Presets for IG, Reels, YT</div>
+            <button class="btn-small" type="button" onclick="openPanel('image')">
+              Open tool ↗
+            </button>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Caption & Hashtag Builder</div>
+            <div class="tool-tag">Text</div>
+          </div>
+          <div class="tool-body">
+            Turn a rough idea into a platform-ready caption with tone and
+            hashtags for IG, TikTok, YouTube, Facebook, and X.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">Hooks • captions • tags</div>
+            <button class="btn-small" type="button" onclick="openPanel('caption')">
+              Open tool ↗
+            </button>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Safe Link Scan</div>
+            <div class="tool-tag">Safety</div>
+          </div>
+          <div class="tool-body">
+            Paste a brand or collab link and run quick checks for common red
+            flags.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">No network calls, heuristics only</div>
+            <button class="btn-small" type="button" onclick="openPanel('link')">
+              Open tool ↗
+            </button>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Content Planner</div>
+            <div class="tool-tag">Planning</div>
+          </div>
+          <div class="tool-body">
+            Capture post ideas, platforms, and target dates in a lightweight
+            local planner.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">Saved to this browser only</div>
+            <button class="btn-small" type="button" onclick="openPanel('planner')">
+              Open tool ↗
+            </button>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Watermark Helper</div>
+            <div class="tool-tag">Image</div>
+          </div>
+          <div class="tool-body">
+            Add your @handle or logo watermark before sharing files or sending
+            preview drafts.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">Overlay text on your image</div>
+            <button class="btn-small" type="button" onclick="openPanel('watermark')">
+              Open tool ↗
+            </button>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Thumbnail Starter</div>
+            <div class="tool-tag">Image</div>
+          </div>
+          <div class="tool-body">
+            Generate simple, bold text layouts for YouTube & short-form covers
+            with one click.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">Text-first layouts</div>
+            <button class="btn-small" type="button" onclick="openPanel('thumbnail')">
+              Open tool ↗
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="workspace">
+      <div class="section-title">
+        <span class="dot"></span>
+        Creator workspace
+      </div>
+      <div class="workspace">
+        <!-- Image Resize Panel -->
+        <div class="panel" id="panel-image">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">🖼</span> Image Resize & Compress
+            </div>
+            <span class="badge">On-device</span>
+          </div>
+
+          <div>
+            <label for="imageInput">Upload image</label>
+            <input type="file" id="imageInput" accept="image/*" />
+          </div>
+
+          <div>
+            <label>Preset</label>
+            <div class="inline-controls">
+              <button class="chip" type="button" data-size="1080x1080"
+                onclick="setPreset(this)">IG Post</button>
+              <button class="chip" type="button" data-size="1080x1350"
+                onclick="setPreset(this)">IG Portrait</button>
+              <button class="chip" type="button" data-size="1080x1920"
+                onclick="setPreset(this)">Reel / Story</button>
+              <button class="chip" type="button" data-size="1280x720"
+                onclick="setPreset(this)">YT Thumb</button>
+              <button class="chip" type="button" data-size="1200x630"
+                onclick="setPreset(this)">FB Post</button>
+            </div>
+          </div>
+
+          <div class="inline-controls">
+            <div style="flex:1">
+              <label for="widthInput">Width</label>
+              <input type="number" id="widthInput" placeholder="auto" min="1" />
+            </div>
+            <div style="flex:1">
+              <label for="heightInput">Height</label>
+              <input type="number" id="heightInput" placeholder="auto" min="1" />
+            </div>
+          </div>
+
+          <div class="inline-controls">
+            <div>
+              <input type="checkbox" id="keepRatio" checked />
+              <label for="keepRatio">Keep aspect ratio</label>
+            </div>
+            <div>
+              <label for="qualityInput">Quality (JPEG)</label>
+              <input type="number" id="qualityInput" min="10" max="100"
+                value="85" style="width:70px" />
+            </div>
+          </div>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" onclick="resizeImage()">
+              Process image
+            </button>
+            <button class="btn-small" type="button" id="downloadImageBtn"
+              onclick="downloadResizedImage()" disabled>
+              Download result
+            </button>
+          </div>
+
+          <div class="tiny">
+            Files are processed in this browser only. For best results, start
+            from the highest quality original you have.
+          </div>
+
+          <canvas id="imageCanvas" style="display:none;"></canvas>
+        </div>
+
+        <!-- Caption Builder Panel -->
+        <div class="panel" id="panel-caption">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">✍️</span> Caption & Hashtag Builder
+            </div>
+            <span class="badge">Local helper</span>
+          </div>
+
+          <div>
+            <label for="captionTopic">What is your post about?</label>
+            <input type="text" id="captionTopic"
+              placeholder="Example: Quick Wi-Fi fix for office workers" />
+          </div>
+
+          <div class="inline-controls">
+            <div style="flex:1">
+              <label for="captionTone">Tone</label>
+              <select id="captionTone">
+                <option value="friendly">Friendly & casual</option>
+                <option value="educational">Educational & clear</option>
+                <option value="hype">Hype / high energy</option>
+                <option value="aesthetic">Aesthetic / minimal</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label for="captionPlatform">Platform</label>
+              <select id="captionPlatform">
+                <option value="instagram">Instagram</option>
+                <option value="tiktok">TikTok</option>
+                <option value="youtube">YouTube</option>
+                <option value="facebook">Facebook</option>
+                <option value="twitter">X / Twitter</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" onclick="generateCaption()">
+              Generate caption
+            </button>
+            <button class="btn-small" type="button" onclick="copyCaption()">
+              Copy to clipboard
+            </button>
+          </div>
+
+          <div class="result-box" id="captionResult">
+            Your generated caption will appear here.
+          </div>
+
+          <div class="tiny">
+            This is a starter caption builder—feel free to tweak the wording so
+            it sounds exactly like you.
+          </div>
+        </div>
+
+        <!-- Safe Link & Planner (stacked) -->
+        <div class="panel" id="panel-link-planner">
+          <!-- Safe Link -->
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">🛡</span> Safe Link Scan
+            </div>
+            <span class="badge">Heuristics only</span>
+          </div>
+
+          <div>
+            <label for="linkInput">Paste a link to scan</label>
+            <input type="text" id="linkInput"
+              placeholder="Example: https://brand-offer.example.com/collab" />
+          </div>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" onclick="scanLink()">
+              Run checks
+            </button>
+          </div>
+
+          <div class="result-box" id="linkResult">
+            We’ll check for HTTPS, suspicious patterns, and unusual domains. This
+            does not contact the URL or guarantee safety.
+          </div>
+
+          <!-- Divider -->
+          <div style="margin:8px 0;border-bottom:1px dashed rgba(255,255,255,0.06);"></div>
+
+          <!-- Content Planner -->
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">📅</span> Mini Content Planner
+            </div>
+            <span class="badge">Saved here only</span>
+          </div>
+
+          <div class="inline-controls">
+            <input type="text" id="plannerTitle"
+              placeholder="Example: Wi-Fi troubleshooting reel" />
+          </div>
+          <div class="inline-controls">
+            <select id="plannerPlatform" style="flex:1">
+              <option value="">Platform</option>
+              <option>Instagram</option>
+              <option>TikTok</option>
+              <option>YouTube</option>
+              <option>Facebook</option>
+              <option>X / Twitter</option>
+            </select>
+            <input type="text" id="plannerWhen" style="flex:1"
+              placeholder="When? (e.g. Fri, 7pm)" />
+          </div>
+          <div class="inline-controls">
+            <button class="btn-small" type="button" onclick="addPlanItem()">
+              Add to planner
+            </button>
+            <button class="btn-small" type="button" onclick="clearPlanner()">
+              Clear all
+            </button>
+          </div>
+
+          <ul class="planner-list" id="plannerList"></ul>
+        </div>
+
+        <!-- Watermark Panel -->
+        <div class="panel" id="panel-watermark">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">📝</span> Watermark Helper
+            </div>
+            <span class="badge">On-device</span>
+          </div>
+
+          <div>
+            <label for="wmImageInput">Upload image to watermark</label>
+            <input type="file" id="wmImageInput" accept="image/*" />
+          </div>
+
+          <div>
+            <label for="watermarkText">Watermark text (e.g. @yourhandle)</label>
+            <input type="text" id="watermarkText"
+              placeholder="@yourhandle or brand name" />
+          </div>
+
+          <div class="inline-controls">
+            <div style="flex:1">
+              <label for="watermarkPosition">Position</label>
+              <select id="watermarkPosition">
+                <option value="bottom-right">Bottom right</option>
+                <option value="bottom-left">Bottom left</option>
+                <option value="top-right">Top right</option>
+                <option value="top-left">Top left</option>
+                <option value="center">Center</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label for="watermarkColor">Color</label>
+              <input type="color" id="watermarkColor" value="#ffffff" />
+            </div>
+          </div>
+
+          <div class="range-row">
+            <label style="margin:0;">Size</label>
+            <input type="range" id="watermarkSize" min="16" max="72" value="32" />
+            <span id="watermarkSizeLabel">32px</span>
+          </div>
+
+          <div class="range-row">
+            <label style="margin:0;">Opacity</label>
+            <input type="range" id="watermarkOpacity" min="20" max="100" value="70" />
+            <span id="watermarkOpacityLabel">70%</span>
+          </div>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" onclick="previewWatermark()">
+              Preview watermark
+            </button>
+            <button class="btn-small" type="button" id="downloadWatermarkBtn"
+              onclick="downloadWatermarkedImage()" disabled>
+              Download watermarked
+            </button>
+          </div>
+
+          <canvas id="watermarkCanvas" class="canvas-preview" style="display:none;"></canvas>
+
+          <div class="tiny">
+            This tool overlays text only (no image logos yet). Great for quick
+            protection before sending files for review.
+          </div>
+        </div>
+
+        <!-- Thumbnail Starter Panel -->
+        <div class="panel" id="panel-thumbnail">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">🎬</span> Thumbnail Starter
+            </div>
+            <span class="badge">Text-first</span>
+          </div>
+
+          <div>
+            <label for="thumbTitle">Main title text</label>
+            <input type="text" id="thumbTitle"
+              placeholder="Example: Fix Your Wi-Fi in 60 Seconds" />
+          </div>
+
+          <div>
+            <label for="thumbSubtitle">Optional subtitle</label>
+            <input type="text" id="thumbSubtitle"
+              placeholder="No tech skills required" />
+          </div>
+
+          <div class="inline-controls">
+            <div style="flex:1">
+              <label for="thumbPreset">Preset size</label>
+              <select id="thumbPreset">
+                <option value="1280x720">YouTube (1280×720)</option>
+                <option value="1080x1920">Vertical (1080×1920)</option>
+                <option value="1080x1080">Square (1080×1080)</option>
+              </select>
+            </div>
+            <div style="flex:1">
+              <label for="thumbLayout">Layout</label>
+              <select id="thumbLayout">
+                <option value="center">Center</option>
+                <option value="bottom">Bottom band</option>
+                <option value="left">Left stack</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inline-controls">
+            <div style="flex:1">
+              <label for="thumbStyle">Background style</label>
+              <select id="thumbStyle">
+                <option value="dark">Deep dark</option>
+                <option value="neon">Neon gradient</option>
+                <option value="soft">Soft pastel</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" onclick="generateThumbnail()">
+              Generate thumbnail
+            </button>
+            <button class="btn-small" type="button" id="downloadThumbBtn"
+              onclick="downloadThumbnail()" disabled>
+              Download PNG
+            </button>
+          </div>
+
+          <canvas id="thumbCanvas" class="canvas-preview" style="display:none;"></canvas>
+
+          <div class="tiny">
+            This is a simple text-based layout starter. You can layer this under
+            your photos or use as-is for clean, bold titles.
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        This is an early prototype of CreatorForge. Features will evolve as we
+        learn from real creators.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    function scrollToWorkspace() {
+      const el = document.getElementById('workspace');
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function openPanel(kind) {
+      scrollToWorkspace();
+      const panelId =
+        kind === 'image' ? 'panel-image'
+        : kind === 'caption' ? 'panel-caption'
+        : kind === 'link' ? 'panel-link-planner'
+        : kind === 'planner' ? 'panel-link-planner'
+        : kind === 'watermark' ? 'panel-watermark'
+        : kind === 'thumbnail' ? 'panel-thumbnail'
+        : null;
+
+      if (!panelId) return;
+
+      const panel = document.getElementById(panelId);
+      if (panel) {
+        panel.style.boxShadow = '0 0 0 1px rgba(160,240,255,0.85)';
+        panel.style.transition = 'box-shadow 0.3s ease';
+        setTimeout(() => {
+          panel.style.boxShadow = 'none';
+        }, 700);
+      }
+    }
+
+    /* ---------- Image Resize & Compress ---------- */
+    let loadedImage = null;
+    let resizedBlob = null;
+    let originalAspect = null;
+
+    const imageInput = document.getElementById('imageInput');
+    const widthInput = document.getElementById('widthInput');
+    const heightInput = document.getElementById('heightInput');
+    const keepRatioCheckbox = document.getElementById('keepRatio');
+    const qualityInput = document.getElementById('qualityInput');
+    const imageCanvas = document.getElementById('imageCanvas');
+    const downloadBtn = document.getElementById('downloadImageBtn');
+
+    if (imageInput) {
+      imageInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            loadedImage = img;
+            originalAspect = img.width / img.height;
+            if (!widthInput.value && !heightInput.value) {
+              widthInput.value = img.width;
+              heightInput.value = img.height;
+            }
+            resizedBlob = null;
+            downloadBtn.disabled = true;
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function setPreset(button) {
+      const size = button.getAttribute('data-size');
+      if (!size) return;
+      const [w, h] = size.split('x').map(Number);
+      widthInput.value = w || '';
+      heightInput.value = h || '';
+      document.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
+      button.classList.add('active');
+    }
+
+    widthInput?.addEventListener('input', () => {
+      if (!keepRatioCheckbox.checked || !originalAspect) return;
+      const w = parseInt(widthInput.value, 10);
+      if (!w || w <= 0) return;
+      const newH = Math.round(w / originalAspect);
+      heightInput.value = newH;
+    });
+
+    heightInput?.addEventListener('input', () => {
+      if (!keepRatioCheckbox.checked || !originalAspect) return;
+      const h = parseInt(heightInput.value, 10);
+      if (!h || h <= 0) return;
+      const newW = Math.round(h * originalAspect);
+      widthInput.value = newW;
+    });
+
+    function resizeImage() {
+      if (!loadedImage) {
+        alert('Please upload an image first.');
+        return;
+      }
+      let targetW = parseInt(widthInput.value, 10);
+      let targetH = parseInt(heightInput.value, 10);
+
+      if (!targetW && !targetH) {
+        targetW = loadedImage.width;
+        targetH = loadedImage.height;
+      } else if (!targetW) {
+        targetW = Math.round(targetH * originalAspect);
+      } else if (!targetH) {
+        targetH = Math.round(targetW / originalAspect);
+      }
+
+      if (!targetW || !targetH || targetW <= 0 || targetH <= 0) {
+        alert('Please set a valid width and/or height.');
+        return;
+      }
+
+      const canvas = imageCanvas;
+      const ctx = canvas.getContext('2d');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(loadedImage, 0, 0, targetW, targetH);
+
+      let quality = parseInt(qualityInput.value, 10);
+      if (!quality || quality < 10) quality = 10;
+      if (quality > 100) quality = 100;
+      const q = quality / 100;
+
+      canvas.toBlob(
+        blob => {
+          if (!blob) {
+            alert('Something went wrong generating the image.');
+            return;
+          }
+          resizedBlob = blob;
+          downloadBtn.disabled = false;
+        },
+        'image/jpeg',
+        q
+      );
+    }
+
+    function downloadResizedImage() {
+      if (!resizedBlob) {
+        alert('No processed image yet. Run "Process image" first.');
+        return;
+      }
+      const url = URL.createObjectURL(resizedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'creatorforge-image.jpg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    /* ---------- Caption Builder (with Facebook) ---------- */
+    function generateCaption() {
+      const topic = (document.getElementById('captionTopic')?.value || '').trim();
+      const tone = document.getElementById('captionTone')?.value || 'friendly';
+      const platform = document.getElementById('captionPlatform')?.value || 'instagram';
+      const outEl = document.getElementById('captionResult');
+
+      if (!topic) {
+        outEl.textContent = 'Describe what your post is about first.';
+        return;
+      }
+
+      const hooks = {
+        friendly: [
+          `You won't believe how easy this is 👀`,
+          `Sharing this because it helped me so much 💡`,
+          `If you needed this today, you’re not alone 💛`,
+        ],
+        educational: [
+          `Here’s a simple breakdown you can save for later 📌`,
+          `Most people get this wrong—here’s the fix 🧠`,
+          `Step-by-step so you never have to guess again ✅`,
+        ],
+        hype: [
+          `This might be my favorite thing I’ve shared yet 🤯`,
+          `We’re leveling up today—let’s gooo ⚡`,
+          `I dare you to try this and NOT be amazed 😤`,
+        ],
+        aesthetic: [
+          `Little things that make life feel softer 🌫`,
+          `Saving this moment here 🕊`,
+          `Details you might miss at first glance ✨`,
+        ],
+      };
+
+      const tagSets = {
+        instagram: ['#instagram', '#creator', '#reels', '#contentcreator'],
+        tiktok: ['#tiktok', '#fyp', '#tiktoktips', '#contentcreator'],
+        youtube: ['#youtube', '#youtubeshorts', '#contentcreator', '#learnontiktok'],
+        facebook: ['#facebook', '#creators', '#socialmedia', '#contentcreator'],
+        twitter: ['#buildinpublic', '#creators', '#tech', '#workflow'],
+      };
+
+      const chosenHooks = hooks[tone] || hooks.friendly;
+      const hook = chosenHooks[Math.floor(Math.random() * chosenHooks.length)];
+
+      const baseTags = tagSets[platform] || tagSets.instagram;
+      const topicTag = '#' + topic
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '')
+        .slice(0, 20);
+
+      const captionLines = [
+        hook,
+        '',
+        topic.charAt(0).toUpperCase() + topic.slice(1),
+        '',
+        `💾 Save this so you don’t have to search again.`,
+        '',
+        [...new Set([topicTag, ...baseTags])].join(' '),
+      ];
+
+      outEl.textContent = captionLines.join('\n');
+    }
+
+    async function copyCaption() {
+      const outEl = document.getElementById('captionResult');
+      const txt = outEl?.textContent || '';
+      if (!txt.trim()) {
+        alert('Nothing to copy yet—generate a caption first.');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(txt);
+        outEl.textContent += '\n\n[Copied to clipboard ✔]';
+      } catch (err) {
+        alert('Unable to copy automatically. You can select and copy manually.');
+      }
+    }
+
+    /* ---------- Safe Link Scan ---------- */
+    function scanLink() {
+      const inputEl = document.getElementById('linkInput');
+      const resultEl = document.getElementById('linkResult');
+      const value = (inputEl?.value || '').trim();
+
+      if (!value) {
+        resultEl.textContent = 'Paste a link to analyze.';
+        return;
+      }
+
+      let urlText = value;
+      if (!/^https?:\/\//i.test(urlText)) {
+        urlText = 'https://' + urlText;
+      }
+
+      let url;
+      try {
+        url = new URL(urlText);
+      } catch (e) {
+        resultEl.innerHTML = `<span class="badge danger">Invalid URL</span> This doesn’t look like a valid link. Double-check for typos or weird characters.`;
+        return;
+      }
+
+      const findings = [];
+      const hostname = url.hostname;
+      const protocol = url.protocol;
+      const path = url.pathname + url.search + url.hash;
+
+      const ipRegex = /^(?:\d{1,3}\.){3}\d{1,3}$/;
+      const isIpHost = ipRegex.test(hostname);
+
+      if (protocol !== 'https:') {
+        findings.push(`<span class="badge danger">No HTTPS</span> This link is not using HTTPS. Avoid entering passwords or payment info.`);
+      } else {
+        findings.push(`<span class="badge success">HTTPS</span> Connection is using HTTPS (this is necessary but not a guarantee of safety).`);
+      }
+
+      const suspiciousTlds = ['.ru', '.cn', '.top', '.click', '.xyz', '.work', '.biz'];
+      const tldMatch = hostname.match(/\.[a-z0-9]+$/i);
+      if (tldMatch && suspiciousTlds.includes(tldMatch[0].toLowerCase())) {
+        findings.push(`<span class="badge warn">Unusual domain ending</span> Domain ends with <b>${tldMatch[0]}</b>, which is sometimes used in spam links.`);
+      }
+
+      if (isIpHost) {
+        findings.push(`<span class="badge danger">IP address as host</span> Legit brands rarely send links that go directly to a bare IP address.`);
+      }
+
+      const subdomains = hostname.split('.');
+      if (subdomains.length > 3) {
+        findings.push(`<span class="badge warn">Many subdomains</span> This link has a lot of dots: <code>${hostname}</code>. Attackers sometimes hide malicious sites behind long hostnames.`);
+      }
+
+      if (/login|verify|reset|invoice|paypal|crypt|gift|bonus/i.test(path)) {
+        findings.push(`<span class="badge warn">Suspicious words in URL</span> The path contains words commonly used in phishing pages.`);
+      }
+
+      if (value.length > 140) {
+        findings.push(`<span class="badge warn">Very long URL</span> Extra-long links can be used to hide tracking and redirects.`);
+      }
+
+      const output = [];
+      output.push(`Host: <code>${hostname}</code>`);
+      output.push(`Protocol: <code>${protocol.replace(':','')}</code>`);
+      output.push('');
+      if (findings.length === 0) {
+        output.push(`<span class="badge success">No obvious red flags</span> Nothing looks immediately suspicious based on structure alone.`);
+      } else {
+        output.push(`<span class="badge warn">Heuristic findings</span> These are not definitive, just things to be aware of:`);
+        output.push('');
+        output.push(findings.join('\n'));
+      }
+
+      output.push('');
+      output.push(`<div class="link-rating">
+        <span class="pill-soft">⚠️ This tool does not visit or verify the site and cannot guarantee safety. Always trust your gut and verify with the brand through another channel.</span>
+      </div>`);
+
+      resultEl.innerHTML = output.join('\n');
+    }
+
+    /* ---------- Mini Content Planner (with Facebook option) ---------- */
+    const PLANNER_KEY = 'creatorforge_planner_v1';
+
+    function loadPlanner() {
+      const raw = localStorage.getItem(PLANNER_KEY);
+      if (!raw) {
+        return [];
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function savePlanner(items) {
+      try {
+        localStorage.setItem(PLANNER_KEY, JSON.stringify(items));
+      } catch {
+        // ignore
+      }
+    }
+
+    function renderPlanner() {
+      const listEl = document.getElementById('plannerList');
+      if (!listEl) return;
+      const items = loadPlanner();
+      listEl.innerHTML = '';
+      if (!items.length) {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="planner-meta">No items yet. Add your first idea above.</span>`;
+        listEl.appendChild(li);
+        return;
+      }
+      items.forEach((item, index) => {
+        const li = document.createElement('li');
+        const left = document.createElement('div');
+        const right = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'planner-title';
+        title.textContent = item.title || '(Untitled idea)';
+        const meta = document.createElement('div');
+        meta.className = 'planner-meta';
+        meta.textContent = [item.platform, item.when].filter(Boolean).join(' • ');
+        left.appendChild(title);
+        left.appendChild(meta);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'btn-small';
+        removeBtn.style.fontSize = '0.65rem';
+        removeBtn.textContent = 'Remove';
+        removeBtn.onclick = () => {
+          const current = loadPlanner();
+          current.splice(index, 1);
+          savePlanner(current);
+          renderPlanner();
+        };
+        right.appendChild(removeBtn);
+
+        li.appendChild(left);
+        li.appendChild(right);
+        listEl.appendChild(li);
+      });
+    }
+
+    function addPlanItem() {
+      const titleEl = document.getElementById('plannerTitle');
+      const platformEl = document.getElementById('plannerPlatform');
+      const whenEl = document.getElementById('plannerWhen');
+
+      const title = (titleEl?.value || '').trim();
+      const platform = (platformEl?.value || '').trim();
+      const when = (whenEl?.value || '').trim();
+
+      if (!title) {
+        alert('Add at least a working title for your idea.');
+        return;
+      }
+
+      const items = loadPlanner();
+      items.unshift({
+        title,
+        platform,
+        when,
+        createdAt: Date.now()
+      });
+      savePlanner(items);
+      renderPlanner();
+
+      titleEl.value = '';
+      whenEl.value = '';
+    }
+
+    function clearPlanner() {
+      if (!confirm('Clear all planner items for this browser?')) return;
+      savePlanner([]);
+      renderPlanner();
+    }
+
+    /* ---------- Watermark Helper ---------- */
+    let wmImage = null;
+    let wmBlob = null;
+
+    const wmImageInput = document.getElementById('wmImageInput');
+    const wmCanvas = document.getElementById('watermarkCanvas');
+    const wmTextInput = document.getElementById('watermarkText');
+    const wmPosSelect = document.getElementById('watermarkPosition');
+    const wmColorInput = document.getElementById('watermarkColor');
+    const wmSizeInput = document.getElementById('watermarkSize');
+    const wmSizeLabel = document.getElementById('watermarkSizeLabel');
+    const wmOpacityInput = document.getElementById('watermarkOpacity');
+    const wmOpacityLabel = document.getElementById('watermarkOpacityLabel');
+    const wmDownloadBtn = document.getElementById('downloadWatermarkBtn');
+
+    if (wmSizeInput && wmSizeLabel) {
+      wmSizeInput.addEventListener('input', () => {
+        wmSizeLabel.textContent = wmSizeInput.value + 'px';
+      });
+    }
+
+    if (wmOpacityInput && wmOpacityLabel) {
+      wmOpacityInput.addEventListener('input', () => {
+        wmOpacityLabel.textContent = wmOpacityInput.value + '%';
+      });
+    }
+
+    if (wmImageInput) {
+      wmImageInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            wmImage = img;
+            wmBlob = null;
+            wmCanvas.style.display = 'none';
+            wmDownloadBtn.disabled = true;
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function hexToRgb(hex) {
+      const cleaned = hex.replace('#', '');
+      const match = cleaned.match(/^([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+      if (!match) return null;
+      return {
+        r: parseInt(match[1], 16),
+        g: parseInt(match[2], 16),
+        b: parseInt(match[3], 16),
+      };
+    }
+
+    function previewWatermark() {
+      if (!wmImage) {
+        alert('Upload a base image first.');
+        return;
+      }
+      const text = (wmTextInput?.value || '').trim();
+      if (!text) {
+        alert('Add some watermark text (e.g. @yourhandle).');
+        return;
+      }
+
+      const pos = wmPosSelect?.value || 'bottom-right';
+      const colorHex = wmColorInput?.value || '#ffffff';
+      const size = parseInt(wmSizeInput?.value || '32', 10);
+      const opacity = (parseInt(wmOpacityInput?.value || '70', 10) || 70) / 100;
+
+      const rgb = hexToRgb(colorHex) || { r: 255, g: 255, b: 255 };
+
+      const canvas = wmCanvas;
+      const ctx = canvas.getContext('2d');
+      canvas.width = wmImage.width;
+      canvas.height = wmImage.height;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(wmImage, 0, 0, canvas.width, canvas.height);
+
+      ctx.font = `600 ${size}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+      ctx.textBaseline = 'bottom';
+
+      const padding = Math.max(size * 0.4, 8);
+      const textMetrics = ctx.measureText(text);
+      const textWidth = textMetrics.width;
+      const textHeight = size;
+
+      let x = padding;
+      let y = canvas.height - padding;
+
+      if (pos === 'bottom-right') {
+        x = canvas.width - padding - textWidth;
+        y = canvas.height - padding;
+      } else if (pos === 'bottom-left') {
+        x = padding;
+        y = canvas.height - padding;
+      } else if (pos === 'top-right') {
+        x = canvas.width - padding - textWidth;
+        y = padding + textHeight;
+      } else if (pos === 'top-left') {
+        x = padding;
+        y = padding + textHeight;
+      } else if (pos === 'center') {
+        x = (canvas.width - textWidth) / 2;
+        y = (canvas.height + textHeight) / 2;
+      }
+
+      ctx.fillStyle = `rgba(0, 0, 0, ${opacity * 0.45})`;
+      const shadowPadding = size * 0.35;
+      const boxX = x - shadowPadding;
+      const boxY = y - textHeight - shadowPadding * 0.4;
+      const boxW = textWidth + shadowPadding * 2;
+      const boxH = textHeight + shadowPadding * 0.9;
+      ctx.fillRect(boxX, boxY, boxW, boxH);
+
+      ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
+      ctx.fillText(text, x, y);
+
+      wmCanvas.style.display = 'block';
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        wmBlob = blob;
+        wmDownloadBtn.disabled = false;
+      }, 'image/png', 0.95);
+    }
+
+    function downloadWatermarkedImage() {
+      if (!wmBlob) {
+        alert('No watermarked image yet. Click "Preview watermark" first.');
+        return;
+      }
+      const url = URL.createObjectURL(wmBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'creatorforge-watermarked.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    /* ---------- Thumbnail Starter ---------- */
+    let thumbBlob = null;
+
+    const thumbCanvas = document.getElementById('thumbCanvas');
+    const thumbTitleInput = document.getElementById('thumbTitle');
+    const thumbSubtitleInput = document.getElementById('thumbSubtitle');
+    const thumbPresetSelect = document.getElementById('thumbPreset');
+    const thumbLayoutSelect = document.getElementById('thumbLayout');
+    const thumbStyleSelect = document.getElementById('thumbStyle');
+    const thumbDownloadBtn = document.getElementById('downloadThumbBtn');
+
+    function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, align = 'center') {
+      if (!text) return y;
+      const words = text.split(' ');
+      let line = '';
+      let lines = [];
+
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i] + ' ';
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && i > 0) {
+          lines.push(line.trim());
+          line = words[i] + ' ';
+        } else {
+          line = testLine;
+        }
+      }
+      if (line.trim()) lines.push(line.trim());
+
+      ctx.textAlign = align;
+      let currentY = y;
+      lines.forEach(l => {
+        ctx.fillText(l, x, currentY);
+        currentY += lineHeight;
+      });
+      return currentY;
+    }
+
+    function generateThumbnail() {
+      const title = (thumbTitleInput?.value || '').trim();
+      const subtitle = (thumbSubtitleInput?.value || '').trim();
+      const preset = thumbPresetSelect?.value || '1280x720';
+      const layout = thumbLayoutSelect?.value || 'center';
+      const style = thumbStyleSelect?.value || 'dark';
+
+      if (!title) {
+        alert('Add main title text first.');
+        return;
+      }
+
+      const [w, h] = preset.split('x').map(Number);
+      const canvas = thumbCanvas;
+      const ctx = canvas.getContext('2d');
+      canvas.width = w;
+      canvas.height = h;
+
+      if (style === 'neon') {
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0, '#0b1020');
+        grad.addColorStop(0.4, '#2a1a4f');
+        grad.addColorStop(0.8, '#0b4854');
+        grad.addColorStop(1, '#05070b');
+        ctx.fillStyle = grad;
+      } else if (style === 'soft') {
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0, '#f9e6ff');
+        grad.addColorStop(0.5, '#e3f6ff');
+        grad.addColorStop(1, '#fdf4e6');
+        ctx.fillStyle = grad;
+      } else {
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0, '#05070b');
+        grad.addColorStop(0.6, '#121829');
+        grad.addColorStop(1, '#05070b');
+        ctx.fillStyle = grad;
+      }
+      ctx.fillRect(0, 0, w, h);
+
+      if (layout === 'bottom') {
+        ctx.fillStyle = style === 'soft' ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.6)';
+        ctx.fillRect(0, h * 0.55, w, h * 0.45);
+      } else if (layout === 'left') {
+        ctx.fillStyle = style === 'soft' ? 'rgba(0,0,0,0.12)' : 'rgba(0,0,0,0.5)';
+        ctx.fillRect(0, 0, w * 0.52, h);
+      }
+
+      if (style === 'soft') {
+        ctx.fillStyle = '#111827';
+      } else {
+        ctx.fillStyle = '#f9fbff';
+      }
+
+      let centerX = w / 2;
+      let startY = h / 2;
+      let maxWidth = w * 0.8;
+      let align = 'center';
+
+      if (layout === 'bottom') {
+        startY = h * 0.68;
+        maxWidth = w * 0.88;
+        align = 'center';
+      } else if (layout === 'left') {
+        centerX = w * 0.26;
+        startY = h * 0.34;
+        maxWidth = w * 0.42;
+        align = 'center';
+      }
+
+      const baseFontSize = Math.min(Math.max(w / 16, 32), 72);
+      ctx.font = `800 ${baseFontSize}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+      ctx.textBaseline = 'middle';
+
+      let lineHeight = baseFontSize * 1.2;
+      let titleY = startY;
+
+      if (layout === 'center') {
+        titleY = h / 2 - baseFontSize * (subtitle ? 0.4 : 0);
+      }
+
+      let nextY = drawWrappedText(ctx, title.toUpperCase(), centerX, titleY, maxWidth, lineHeight, align);
+
+      if (subtitle) {
+        const subtitleSize = baseFontSize * 0.55;
+        ctx.font = `600 ${subtitleSize}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+        ctx.fillStyle = style === 'soft' ? '#374151' : '#d1e4ff';
+        const subLineHeight = subtitleSize * 1.25;
+        let subtitleY = nextY + subtitleSize * 0.4;
+        if (layout === 'center') {
+          subtitleY = nextY + subtitleSize * 0.5;
+        }
+        drawWrappedText(ctx, subtitle, centerX, subtitleY, maxWidth, subLineHeight, align);
+      }
+
+      if (style !== 'soft') {
+        ctx.strokeStyle = 'rgba(160,240,255,0.55)';
+        ctx.lineWidth = Math.max(w / 650, 1.2);
+        ctx.strokeRect(w * 0.03, h * 0.04, w * 0.94, h * 0.92);
+      }
+
+      thumbCanvas.style.display = 'block';
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        thumbBlob = blob;
+        thumbDownloadBtn.disabled = false;
+      }, 'image/png', 0.95);
+    }
+
+    function downloadThumbnail() {
+      if (!thumbBlob) {
+        alert('No generated thumbnail yet. Click "Generate thumbnail" first.');
+        return;
+      }
+      const url = URL.createObjectURL(thumbBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'creatorforge-thumbnail.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderPlanner();
+    });
+  </script>
+</body>
+</html>
