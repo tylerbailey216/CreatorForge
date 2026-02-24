@@ -774,6 +774,62 @@
       color: var(--muted);
     }
 
+    .bgremover-preview-wrap {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%) 0 0 / 20px 20px,
+        linear-gradient(-45deg, rgba(255,255,255,0.05) 25%, transparent 25%) 0 10px / 20px 20px,
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.04) 75%) 10px -10px / 20px 20px,
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.04) 75%) -10px 0 / 20px 20px,
+        radial-gradient(circle at top, #1a2236 0, #05070b 60%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bgremover-canvas {
+      width: 100%;
+      display: block;
+      background: transparent;
+      max-height: 340px;
+      object-fit: contain;
+    }
+
+    .bgremover-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .bgremover-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .bgremover-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .bgremover-hidden {
+      display: none !important;
+    }
+
+    .bgremover-status {
+      min-height: 16px;
+    }
+
+    .bgremover-badge-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
     @keyframes orbit {
       from { transform: rotate(0deg) scale(1); }
       to { transform: rotate(360deg) scale(1); }
@@ -818,6 +874,10 @@
         padding: 6px 12px;
       }
       .collage-slot-row {
+        grid-template-columns: 1fr;
+      }
+      .bgremover-grid,
+      .bgremover-grid-3 {
         grid-template-columns: 1fr;
       }
     }
@@ -1014,6 +1074,21 @@
             <div class="tool-meta">Photos + videos • drag to frame</div>
             <button class="btn-small" type="button" onclick="event.stopPropagation(); openPanel('collage');">
               Open tool ↗
+            </button>
+          </div>
+        </article>
+        <article class="tool-card" onclick="openPanel('bgremove')">
+          <div class="tool-header">
+            <div class="tool-title">Background Remover (Photo + Video)</div>
+            <div class="tool-tag">AI / Chroma</div>
+          </div>
+          <div class="tool-body">
+            Remove backgrounds with AI subject cutout or green-screen keying, then export transparent or chroma-green outputs.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">Transparent PNG + WebM preview/export</div>
+            <button class="btn-small" type="button" onclick="event.stopPropagation(); openPanel('bgremove');">
+              Open tool
             </button>
           </div>
         </article>
@@ -1467,6 +1542,144 @@
             Video export is WebM and records the collage canvas without audio (keeps this tool fully in-browser).
           </div>
         </div>
+
+        <!-- Background Remover (Photo + Video) -->
+        <div class="panel" id="panel-bgremove">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">✂️</span> Background Remover (Photo + Video)
+            </div>
+            <div class="panel-header-right">
+              <span class="badge">AI + Chroma</span>
+              <span class="hint" title="AI subject cutout for people/products and manual chroma key controls for green-screen footage.">?</span>
+            </div>
+          </div>
+
+          <div>
+            <label for="bgremoverInput">Upload a photo or video</label>
+            <input type="file" id="bgremoverInput" accept="image/*,video/*" />
+          </div>
+
+          <div class="bgremover-grid">
+            <div>
+              <label for="bgremoverEngine">Removal mode</label>
+              <select id="bgremoverEngine">
+                <option value="ai" selected>AI subject cutout (best for people)</option>
+                <option value="chroma">Green screen key (manual)</option>
+              </select>
+            </div>
+            <div>
+              <label for="bgremoverOutputMode">Output background</label>
+              <select id="bgremoverOutputMode">
+                <option value="transparent" selected>Transparent</option>
+                <option value="green">Chroma green</option>
+                <option value="custom">Custom color</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="bgremover-grid-3">
+            <div>
+              <label for="bgremoverModel">AI model</label>
+              <select id="bgremoverModel">
+                <option value="1" selected>General (quality)</option>
+                <option value="0">Landscape (faster)</option>
+              </select>
+            </div>
+            <div>
+              <label for="bgremoverMaxDim">Max processing size</label>
+              <input type="number" id="bgremoverMaxDim" min="256" max="1920" step="32" value="960" />
+            </div>
+            <div id="bgremoverCustomColorWrap">
+              <label for="bgremoverCustomColor">Custom BG</label>
+              <input type="color" id="bgremoverCustomColor" value="#101a2a" />
+            </div>
+          </div>
+
+          <div class="range-row">
+            <label style="margin:0;" for="bgremoverThreshold">Threshold</label>
+            <input type="range" id="bgremoverThreshold" min="1" max="99" value="46" />
+            <span id="bgremoverThresholdLabel">46%</span>
+          </div>
+
+          <div class="range-row">
+            <label style="margin:0;" for="bgremoverSoftness">Softness</label>
+            <input type="range" id="bgremoverSoftness" min="0" max="50" value="12" />
+            <span id="bgremoverSoftnessLabel">12%</span>
+          </div>
+
+          <div class="range-row">
+            <label style="margin:0;" for="bgremoverFeather">Feather</label>
+            <input type="range" id="bgremoverFeather" min="0" max="12" value="2" />
+            <span id="bgremoverFeatherLabel">2px</span>
+          </div>
+
+          <div class="range-row">
+            <label style="margin:0;" for="bgremoverDespill">Despill</label>
+            <input type="range" id="bgremoverDespill" min="0" max="100" value="35" />
+            <span id="bgremoverDespillLabel">35%</span>
+          </div>
+
+          <div class="bgremover-grid-3">
+            <div>
+              <label for="bgremoverHueCenter">Key hue (chroma)</label>
+              <input type="number" id="bgremoverHueCenter" min="0" max="360" step="1" value="120" />
+            </div>
+            <div>
+              <label for="bgremoverHueWidth">Hue width</label>
+              <input type="number" id="bgremoverHueWidth" min="1" max="180" step="1" value="55" />
+            </div>
+            <div>
+              <label for="bgremoverSatMin">Min saturation</label>
+              <input type="number" id="bgremoverSatMin" min="0" max="100" step="1" value="20" />
+            </div>
+          </div>
+
+          <div class="bgremover-grid">
+            <div>
+              <label for="bgremoverValMin">Min brightness (chroma)</label>
+              <input type="number" id="bgremoverValMin" min="0" max="100" step="1" value="8" />
+            </div>
+            <div>
+              <label for="bgremoverExportSeconds">WebM export length</label>
+              <input type="number" id="bgremoverExportSeconds" min="1" max="20" step="1" value="6" />
+            </div>
+          </div>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" id="bgremoverRefreshBtn">Refresh preview</button>
+            <button class="btn-small" type="button" id="bgremoverPlayBtn" disabled>Play video</button>
+            <button class="btn-small" type="button" id="bgremoverResetBtn">Reset settings</button>
+            <button class="btn-small" type="button" id="bgremoverClearBtn">Clear media</button>
+          </div>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" id="bgremoverDownloadImageBtn" disabled>Download PNG</button>
+            <button class="btn-small" type="button" id="bgremoverExportVideoBtn" disabled>Export WebM</button>
+          </div>
+
+          <div class="bgremover-preview-wrap">
+            <canvas id="bgremoverCanvas" class="bgremover-canvas" width="960" height="540"></canvas>
+          </div>
+
+          <div class="bgremover-meta">
+            <div class="bgremover-badge-row">
+              <span class="badge" id="bgremoverSourceBadge">No media loaded</span>
+              <span class="badge" id="bgremoverEngineBadge">AI mode</span>
+            </div>
+            <div class="tiny" id="bgremoverDimensionsLabel">Preview: --</div>
+          </div>
+
+          <div class="tiny bgremover-status" id="bgremoverStatus">Upload a photo or video to start background removal.</div>
+          <div class="tiny">
+            AI mode uses an in-browser segmentation model (best for people/portraits). Chroma mode is for green-screen footage. Transparent PNG export works for photos; transparent WebM support depends on the browser codec and is treated as beta.
+          </div>
+
+          <video id="bgremoverSourceVideo" playsinline muted loop class="bgremover-hidden"></video>
+          <canvas id="bgremoverSourceCanvas" class="bgremover-hidden"></canvas>
+          <canvas id="bgremoverMaskCanvas" class="bgremover-hidden"></canvas>
+          <canvas id="bgremoverFeatherCanvas" class="bgremover-hidden"></canvas>
+        </div>
       </div>
 
       <div class="footer-note">
@@ -1493,6 +1706,7 @@
         : kind === 'watermark' ? 'panel-watermark'
         : kind === 'thumbnail' ? 'panel-thumbnail'
         : kind === 'collage' ? 'panel-collage'
+        : kind === 'bgremove' ? 'panel-bgremove'
         : null;
 
       if (!panelId) return;
@@ -3241,5 +3455,7 @@
       initCollageTool();
     });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+  <script src="creatorforge-bg-remover.js"></script>
 </body>
 </html>
