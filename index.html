@@ -2917,21 +2917,23 @@
 
     async function handleCollageMediaSelection() {
       const allFiles = Array.from(collageMediaInput?.files || []);
-      const files = allFiles.slice(0, 8);
+      const existingCount = collageMedia.length;
+      const remainingCapacity = Math.max(0, 8 - existingCount);
+      const files = allFiles.slice(0, remainingCapacity);
 
-      revokeCollageMedia();
-      collageSlots = [];
-      collageSelectedTileIndex = -1;
-      updateCollageButtons();
-      renderCollageSlotList();
-      requestCollageRender();
-
-      if (!files.length) {
-        setCollageStatus('Upload photos or videos to start a collage.');
+      if (!allFiles.length) {
+        setCollageStatus(existingCount ? 'No new files selected.' : 'Upload photos or videos to start a collage.');
         return;
       }
 
-      setCollageStatus(`Loading ${files.length} file${files.length === 1 ? '' : 's'}...`);
+      if (remainingCapacity <= 0) {
+        setCollageStatus('Collage media library is full (8 files max). Reassign tiles from the list or refresh to start over.');
+        if (collageMediaInput) collageMediaInput.value = '';
+        return;
+      }
+
+      const verb = existingCount ? 'Adding' : 'Loading';
+      setCollageStatus(`${verb} ${files.length} file${files.length === 1 ? '' : 's'}...`);
 
       const settled = await Promise.allSettled(files.map(file => (
         file.type.startsWith('video/')
@@ -2946,29 +2948,72 @@
         else failed += 1;
       });
 
-      collageMedia = loaded;
-      syncCollageSlotsToPreset({ reset: true, autoAssign: true });
+      if (!collageSlots.length) {
+        syncCollageSlotsToPreset({ reset: true, autoAssign: false });
+      } else {
+        syncCollageSlotsToPreset({ reset: false, autoAssign: false });
+      }
+
+      const firstNewIndex = collageMedia.length;
+      collageMedia = collageMedia.concat(loaded);
+
+      if (loaded.length && collageSlots.length) {
+        const newMediaIndices = loaded.map((_, i) => firstNewIndex + i);
+        let nextNew = 0;
+        collageSlots.forEach((slot) => {
+          if (slot.mediaIndex == null) {
+            slot.mediaIndex = newMediaIndices[nextNew % newMediaIndices.length];
+            nextNew += 1;
+          }
+        });
+
+        // If this is the first upload, ensure all empty tiles are filled (repeat uploaded items).
+        if (!existingCount) {
+          collageSlots.forEach((slot, index) => {
+            if (slot.mediaIndex == null && collageMedia.length) {
+              slot.mediaIndex = index % collageMedia.length;
+            }
+          });
+        }
+      }
+
+      renderCollageSlotList();
+      updateCollageSelectedTileUI();
       updateCollageButtons();
       requestCollageRender();
 
-      if (collageMedia.some(item => item.kind === 'video')) {
+      if (loaded.some(item => item.kind === 'video')) {
         await playCollageVideos({ quiet: true });
       }
 
       const photos = collageMedia.filter(item => item.kind === 'image').length;
       const videos = collageMedia.filter(item => item.kind === 'video').length;
+      const addedPhotos = loaded.filter(item => item.kind === 'image').length;
+      const addedVideos = loaded.filter(item => item.kind === 'video').length;
       const parts = [];
       if (photos) parts.push(`${photos} photo${photos === 1 ? '' : 's'}`);
       if (videos) parts.push(`${videos} video${videos === 1 ? '' : 's'}`);
       if (!parts.length) parts.push('0 files');
-      let message = `Loaded ${parts.join(' + ')}.`;
-      if (allFiles.length > 8) message += ` Using first 8 of ${allFiles.length}.`;
+
+      const addedParts = [];
+      if (addedPhotos) addedParts.push(`${addedPhotos} photo${addedPhotos === 1 ? '' : 's'}`);
+      if (addedVideos) addedParts.push(`${addedVideos} video${addedVideos === 1 ? '' : 's'}`);
+
+      let message = loaded.length
+        ? `${existingCount ? 'Added' : 'Loaded'} ${addedParts.length ? addedParts.join(' + ') : `${loaded.length} file${loaded.length === 1 ? '' : 's'}`}. Library now has ${parts.join(' + ')}.`
+        : 'No usable files were added.';
+
+      if (allFiles.length > remainingCapacity) {
+        message += ` Added first ${Math.min(allFiles.length, remainingCapacity)} of ${allFiles.length} selected (8-file max).`;
+      }
       if (failed) message += ` ${failed} failed to load.`;
       if (collageMedia.length > collageSlots.length) {
         const extras = collageMedia.length - collageSlots.length;
         message += ` ${extras} extra item${extras === 1 ? '' : 's'} available in the tile list.`;
       }
       setCollageStatus(message);
+
+      if (collageMediaInput) collageMediaInput.value = '';
     }
 
     async function playCollageVideos(options = {}) {
