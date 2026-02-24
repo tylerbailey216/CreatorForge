@@ -138,14 +138,19 @@
   function currentSettings() {
     const engine = TOOL.engine ? TOOL.engine.value : "ai";
     const outputMode = TOOL.outputMode ? TOOL.outputMode.value : "transparent";
-    return {
+    const baseFeather = clamp(Math.round(getNumeric(TOOL.feather, 2)), 0, 12);
+    let effectiveFeather = baseFeather;
+    if (outputMode === "green") effectiveFeather = Math.max(0, effectiveFeather - 1);
+    if (state.recording) effectiveFeather = Math.max(0, Math.floor(effectiveFeather * 0.6));
+    const settings = {
       engine,
       outputMode,
       modelSelection: clamp(Math.round(getNumeric(TOOL.model, 1)), 0, 1),
       maxDim: clamp(Math.round(getNumeric(TOOL.maxDim, 960)), 256, 1920),
       threshold: clamp(getNumeric(TOOL.threshold, 46) / 100, 0.01, 0.99),
       softness: clamp(getNumeric(TOOL.softness, 12) / 100, 0, 0.5),
-      featherPx: clamp(Math.round(getNumeric(TOOL.feather, 2)), 0, 12),
+      featherPx: baseFeather,
+      effectiveFeatherPx: effectiveFeather,
       despill: clamp(getNumeric(TOOL.despill, 35) / 100, 0, 1),
       hueCenter: clamp(getNumeric(TOOL.hueCenter, 120), 0, 360),
       hueWidth: clamp(getNumeric(TOOL.hueWidth, 55), 1, 180),
@@ -160,7 +165,8 @@
       offsetX: clamp(getNumeric(TOOL.offsetX, 0) / 100, -0.4, 0.4),
       offsetY: clamp(getNumeric(TOOL.offsetY, 0) / 100, -0.4, 0.4),
       playbackRate: clamp(getNumeric(TOOL.playbackRate, 100) / 100, 0.25, 2.0),
-      aiEdgeTighten: outputMode === "transparent" ? 0.08 : 0.14,
+      aiEdgeTighten: outputMode === "transparent" ? 0.1 : 0.28,
+      aiMatteShrink: outputMode === "transparent" ? 0.0 : 0.035,
       bgColor:
         outputMode === "green"
           ? { r: 0, g: 255, b: 0 }
@@ -168,6 +174,7 @@
             ? hexToRgb(TOOL.customColor ? TOOL.customColor.value : "#101a2a")
             : null,
     };
+    return settings;
   }
 
   function fitWithinMax(w, h, maxDim, makeEven) {
@@ -687,8 +694,8 @@
         renderLivePreview(settings);
         return true;
       }
-      if (settings.featherPx > 0) {
-        maskImg = getBlurredMaskImageData(maskImg, width, height, settings.featherPx);
+      if (settings.effectiveFeatherPx > 0) {
+        maskImg = getBlurredMaskImageData(maskImg, width, height, settings.effectiveFeatherPx);
       }
     }
 
@@ -712,6 +719,10 @@
         alphaF = smoothstep(t0, t1, maskVal);
         // Conservative matte tightening to reduce AI halo/fringe without clipping the subject.
         alphaF = Math.pow(alphaF, 1 + (settings.aiEdgeTighten || 0));
+        if (settings.aiMatteShrink > 0 && settings.outputMode !== "transparent") {
+          const shrink = clamp(settings.aiMatteShrink, 0, 0.2);
+          alphaF = clamp((alphaF - shrink) / Math.max(0.0001, 1 - shrink), 0, 1);
+        }
         if (alphaF < 0.008) alphaF = 0;
       } else {
         const hsv = rgbToHsvDeg(r, g, b);
@@ -830,7 +841,7 @@
     }
 
     const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
-    const aiMinIntervalMs = state.recording ? 95 : 70;
+    const aiMinIntervalMs = state.recording ? 140 : 70;
     if (
       settings.engine === "ai" &&
       state.aiAvailable &&
@@ -844,7 +855,7 @@
     }
 
     compositeSourceToPreview(settings.engine === "ai" ? state.aiLastMask : null, settings);
-    if ((now - state.lastVideoUiSyncAt) > 120) {
+    if (!state.recording && (now - state.lastVideoUiSyncAt) > 120) {
       setSourceBadge(`Video: ${state.sourceName || "clip"}`);
       setDimensionsLabel(`Preview: ${formatDims(prepared.width, prepared.height)}`);
       syncVideoPreviewUI();
@@ -1019,7 +1030,7 @@
       await renderCurrentPreview({ forceFreshMask: true });
 
       const mimeType = pickWebMMime();
-      stream = TOOL.previewCanvas.captureStream(30);
+      stream = TOOL.previewCanvas.captureStream(60);
       recorder = mimeType
         ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8_000_000 })
         : new MediaRecorder(stream, { videoBitsPerSecond: 8_000_000 });
@@ -1053,7 +1064,7 @@
           : "Recording WebM export..."
       );
 
-      recorder.start(200);
+      recorder.start(1000);
       try {
         TOOL.sourceVideo.playbackRate = settings.playbackRate;
         await TOOL.sourceVideo.play();
