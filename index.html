@@ -786,6 +786,12 @@
         radial-gradient(circle at top, #1a2236 0, #05070b 60%);
       overflow: hidden;
       position: relative;
+      overflow: auto;
+      max-height: 420px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px;
     }
 
     .bgremover-canvas {
@@ -794,6 +800,66 @@
       background: transparent;
       max-height: 340px;
       object-fit: contain;
+    }
+
+    .bgremover-live-preview-canvas {
+      display: block;
+      background: transparent;
+      width: 100%;
+      max-width: none;
+      margin: 0 auto;
+      flex: 0 0 auto;
+    }
+
+    .bgremover-preview-wrap[data-preview-bg="dark"] {
+      background: radial-gradient(circle at top, #1a2236 0, #05070b 60%);
+    }
+
+    .bgremover-preview-wrap[data-preview-bg="light"] {
+      background: linear-gradient(180deg, #f4f7ff 0, #e7edf8 100%);
+    }
+
+    .bgremover-preview-wrap[data-preview-bg="black"] {
+      background: #000;
+    }
+
+    .bgremover-preview-controls {
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(6, 10, 17, 0.88);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bgremover-slider-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .bgremover-slider-row label {
+      margin: 0;
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+
+    .bgremover-slider-row input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .bgremover-slider-row span {
+      font-size: 0.7rem;
+      color: var(--muted);
+      min-width: 44px;
+      text-align: right;
+    }
+
+    .bgremover-preview-controls .tiny {
+      margin-top: 1px;
     }
 
     .bgremover-grid {
@@ -1658,8 +1724,79 @@
             <button class="btn-small" type="button" id="bgremoverExportVideoBtn" disabled>Export WebM</button>
           </div>
 
-          <div class="bgremover-preview-wrap">
-            <canvas id="bgremoverCanvas" class="bgremover-canvas" width="960" height="540"></canvas>
+          <div class="bgremover-preview-controls">
+            <div class="bgremover-grid-3">
+              <div>
+                <label for="bgremoverPreviewMode">Preview mode</label>
+                <select id="bgremoverPreviewMode">
+                  <option value="result" selected>Processed only</option>
+                  <option value="split">Before / after split</option>
+                  <option value="side">Side by side</option>
+                </select>
+              </div>
+              <div>
+                <label for="bgremoverPreviewBg">Preview background</label>
+                <select id="bgremoverPreviewBg">
+                  <option value="checker" selected>Checkerboard</option>
+                  <option value="dark">Dark</option>
+                  <option value="light">Light</option>
+                  <option value="black">Black</option>
+                </select>
+              </div>
+              <div>
+                <label for="bgremoverPreviewZoom">Preview zoom</label>
+                <div class="bgremover-slider-row">
+                  <label for="bgremoverPreviewZoom" class="bgremover-hidden">Zoom</label>
+                  <input type="range" id="bgremoverPreviewZoom" min="50" max="220" value="100" />
+                  <span id="bgremoverPreviewZoomLabel">100%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bgremover-slider-row" id="bgremoverPreviewSplitWrap">
+              <label for="bgremoverPreviewSplit">Split</label>
+              <input type="range" id="bgremoverPreviewSplit" min="0" max="100" value="50" />
+              <span id="bgremoverPreviewSplitLabel">50%</span>
+            </div>
+
+            <div class="bgremover-grid-3">
+              <div class="bgremover-slider-row">
+                <label for="bgremoverSubjectScale">Subject</label>
+                <input type="range" id="bgremoverSubjectScale" min="70" max="140" value="100" />
+                <span id="bgremoverSubjectScaleLabel">100%</span>
+              </div>
+              <div class="bgremover-slider-row">
+                <label for="bgremoverOffsetX">Offset X</label>
+                <input type="range" id="bgremoverOffsetX" min="-40" max="40" value="0" />
+                <span id="bgremoverOffsetXLabel">0%</span>
+              </div>
+              <div class="bgremover-slider-row">
+                <label for="bgremoverOffsetY">Offset Y</label>
+                <input type="range" id="bgremoverOffsetY" min="-40" max="40" value="0" />
+                <span id="bgremoverOffsetYLabel">0%</span>
+              </div>
+            </div>
+
+            <div class="bgremover-grid-3" id="bgremoverVideoControlsWrap">
+              <div class="bgremover-slider-row" style="grid-column: span 2;">
+                <label for="bgremoverVideoSeek">Scrub</label>
+                <input type="range" id="bgremoverVideoSeek" min="0" max="1000" value="0" />
+                <span id="bgremoverVideoSeekLabel">0:00</span>
+              </div>
+              <div class="bgremover-slider-row">
+                <label for="bgremoverPlaybackRate">Speed</label>
+                <input type="range" id="bgremoverPlaybackRate" min="25" max="200" value="100" />
+                <span id="bgremoverPlaybackRateLabel">1.00x</span>
+              </div>
+            </div>
+
+            <div class="tiny">
+              Live preview compare/framing controls are visual-only and do not change your exported PNG/WebM output.
+            </div>
+          </div>
+
+          <div class="bgremover-preview-wrap" id="bgremoverPreviewWrap" data-preview-bg="checker">
+            <canvas id="bgremoverLivePreviewCanvas" class="bgremover-live-preview-canvas" width="960" height="540"></canvas>
           </div>
 
           <div class="bgremover-meta">
@@ -1675,6 +1812,7 @@
             AI mode uses an in-browser segmentation model (best for people/portraits). Chroma mode is for green-screen footage. Transparent PNG export works for photos; transparent WebM support depends on the browser codec and is treated as beta.
           </div>
 
+          <canvas id="bgremoverCanvas" class="bgremover-hidden" width="960" height="540"></canvas>
           <video id="bgremoverSourceVideo" playsinline muted loop class="bgremover-hidden"></video>
           <canvas id="bgremoverSourceCanvas" class="bgremover-hidden"></canvas>
           <canvas id="bgremoverMaskCanvas" class="bgremover-hidden"></canvas>
