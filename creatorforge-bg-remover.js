@@ -79,6 +79,9 @@
     isScrubbing: false,
     lastOutputAlphaCoverage: 1,
     lastOutputLooksEmpty: false,
+    suspendLivePreviewRender: false,
+    lastVideoUiSyncAt: 0,
+    lastAISendAt: 0,
   };
 
   function $(id) {
@@ -157,6 +160,7 @@
       offsetX: clamp(getNumeric(TOOL.offsetX, 0) / 100, -0.4, 0.4),
       offsetY: clamp(getNumeric(TOOL.offsetY, 0) / 100, -0.4, 0.4),
       playbackRate: clamp(getNumeric(TOOL.playbackRate, 100) / 100, 0.25, 2.0),
+      aiEdgeTighten: outputMode === "transparent" ? 0.08 : 0.14,
       bgColor:
         outputMode === "green"
           ? { r: 0, g: 255, b: 0 }
@@ -706,6 +710,9 @@
       if (settings.engine === "ai") {
         const maskVal = (maskImg.data[i] || 0) / 255;
         alphaF = smoothstep(t0, t1, maskVal);
+        // Conservative matte tightening to reduce AI halo/fringe without clipping the subject.
+        alphaF = Math.pow(alphaF, 1 + (settings.aiEdgeTighten || 0));
+        if (alphaF < 0.008) alphaF = 0;
       } else {
         const hsv = rgbToHsvDeg(r, g, b);
         const rawDist = Math.abs(hsv.h - settings.hueCenter);
@@ -754,7 +761,9 @@
     outCtx.putImageData(outImg, 0, 0);
     state.lastOutputAlphaCoverage = src.length ? (alphaCoverageSum / (src.length / 4)) : 0;
     state.lastOutputLooksEmpty = settings.outputMode === "transparent" && state.lastOutputAlphaCoverage < 0.01;
-    renderLivePreview(settings);
+    if (!state.suspendLivePreviewRender) {
+      renderLivePreview(settings);
+    }
     return true;
   }
 
@@ -820,16 +829,27 @@
       return;
     }
 
-    if (settings.engine === "ai" && state.aiAvailable && !state.aiBusy) {
+    const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : Date.now();
+    const aiMinIntervalMs = state.recording ? 95 : 70;
+    if (
+      settings.engine === "ai" &&
+      state.aiAvailable &&
+      !state.aiBusy &&
+      (now - state.lastAISendAt) >= aiMinIntervalMs
+    ) {
+      state.lastAISendAt = now;
       runAISegmentation(TOOL.sourceCanvas, prepared.width, prepared.height).catch(() => {
         if (!state.recording) setStatus("AI frame analysis hiccup. Continuing preview...");
       });
     }
 
     compositeSourceToPreview(settings.engine === "ai" ? state.aiLastMask : null, settings);
-    setSourceBadge(`Video: ${state.sourceName || "clip"}`);
-    setDimensionsLabel(`Preview: ${formatDims(prepared.width, prepared.height)}`);
-    syncVideoPreviewUI();
+    if ((now - state.lastVideoUiSyncAt) > 120) {
+      setSourceBadge(`Video: ${state.sourceName || "clip"}`);
+      setDimensionsLabel(`Preview: ${formatDims(prepared.width, prepared.height)}`);
+      syncVideoPreviewUI();
+      state.lastVideoUiSyncAt = now;
+    }
     schedulePreviewTick();
   }
 
@@ -1016,6 +1036,8 @@
 
       stopPreviewLoop();
       state.recording = true;
+      state.suspendLivePreviewRender = true;
+      state.lastVideoUiSyncAt = 0;
       updateButtonStates();
 
       try {
@@ -1074,6 +1096,7 @@
       alert("WebM export failed. Try lowering Max processing size or using Chroma output.");
     } finally {
       state.recording = false;
+      state.suspendLivePreviewRender = false;
       if (stream) stream.getTracks().forEach((t) => t.stop());
       if (wasPlaying && state.sourceType === "video") {
         try {
@@ -1086,6 +1109,9 @@
         }
       }
       updateButtonStates();
+      if (state.sourceType) {
+        renderLivePreview(currentSettings());
+      }
     }
   }
 
