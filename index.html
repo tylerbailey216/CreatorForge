@@ -2663,7 +2663,10 @@
 
       if (collageMedia.length && options.autoAssign !== false) {
         collageSlots.forEach((slot, index) => {
-          if (slot.mediaIndex == null && collageMedia[index]) slot.mediaIndex = index;
+          if (slot.mediaIndex == null) {
+            // Repeat available uploads across remaining tiles (Canva-style default behavior).
+            slot.mediaIndex = index % collageMedia.length;
+          }
         });
       }
 
@@ -3150,7 +3153,8 @@
       });
 
       collagePresetInput?.addEventListener('change', () => {
-        syncCollageSlotsToPreset({ reset: false, autoAssign: false });
+        // Preserve existing tile assignments, but fill any new/empty tiles automatically.
+        syncCollageSlotsToPreset({ reset: false, autoAssign: true });
         const preset = getCollagePresetConfig();
         setCollageStatus(`Switched to ${preset.label} (${preset.width}x${preset.height}).`);
         requestCollageRender();
