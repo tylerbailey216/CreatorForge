@@ -77,6 +77,8 @@
     aiPendingResolve: null,
     aiPendingReject: null,
     isScrubbing: false,
+    lastOutputAlphaCoverage: 1,
+    lastOutputLooksEmpty: false,
   };
 
   function $(id) {
@@ -325,6 +327,8 @@
     state.imageEl = null;
     state.imageDirty = true;
     state.aiLastMask = null;
+    state.lastOutputAlphaCoverage = 1;
+    state.lastOutputLooksEmpty = false;
     setSourceBadge("No media loaded");
     setDimensionsLabel("Preview: --");
     clearPreviewCanvas();
@@ -549,6 +553,21 @@
     ctx.restore();
   }
 
+  function drawPreviewMessage(ctx, text, x, y) {
+    ctx.save();
+    ctx.font = "600 12px system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    const padX = 8;
+    const h = 22;
+    const w = Math.ceil(ctx.measureText(text).width + padX * 2);
+    ctx.fillStyle = "rgba(11, 15, 24, 0.72)";
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = "#ffd59b";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, x + padX, y + h / 2);
+    ctx.restore();
+  }
+
   function renderLivePreview(settingsArg) {
     const liveCanvas = TOOL.livePreviewCanvas || TOOL.previewCanvas;
     const processedCanvas = TOOL.previewCanvas;
@@ -592,6 +611,9 @@
 
       drawPreviewTag(ctx, "Before", 8, 8);
       drawPreviewTag(ctx, "After", sw + gap + 8, 8);
+      if (state.lastOutputLooksEmpty) {
+        drawPreviewMessage(ctx, "No foreground detected: adjust settings or switch mode", sw + gap + 8, 34);
+      }
       return;
     }
 
@@ -621,11 +643,20 @@
 
       drawPreviewTag(ctx, "Before", 8, 8);
       drawPreviewTag(ctx, "After", Math.max(8, splitX + 12), 8);
+      if (state.lastOutputLooksEmpty) {
+        drawPreviewMessage(ctx, "No foreground detected: adjust settings or switch mode", 8, 34);
+      }
       return;
     }
 
-    drawCanvasIntoFrame(ctx, processedCanvas, frame, settings);
-    drawPreviewTag(ctx, "Processed", 8, 8);
+    if (state.lastOutputLooksEmpty) {
+      drawCanvasIntoFrame(ctx, sourceCanvas, frame, settings);
+      drawPreviewTag(ctx, "Source (preview fallback)", 8, 8);
+      drawPreviewMessage(ctx, "Result is empty with current settings", 8, 34);
+    } else {
+      drawCanvasIntoFrame(ctx, processedCanvas, frame, settings);
+      drawPreviewTag(ctx, "Processed", 8, 8);
+    }
   }
 
   function compositeSourceToPreview(maskDataMaybe, settings) {
@@ -647,6 +678,8 @@
         const previewCtx = TOOL.previewCanvas.getContext("2d");
         previewCtx.clearRect(0, 0, width, height);
         previewCtx.drawImage(sourceCanvas, 0, 0);
+        state.lastOutputAlphaCoverage = 1;
+        state.lastOutputLooksEmpty = false;
         renderLivePreview(settings);
         return true;
       }
@@ -662,6 +695,7 @@
     const t0 = clamp(settings.threshold - settings.softness, 0, 1);
     const t1 = clamp(settings.threshold + settings.softness, 0, 1);
     const bgColor = settings.bgColor || { r: 0, g: 255, b: 0 };
+    let alphaCoverageSum = 0;
 
     for (let i = 0; i < src.length; i += 4) {
       let r = src[i];
@@ -701,6 +735,7 @@
       }
 
       alphaF = clamp(alphaF, 0, 1);
+      alphaCoverageSum += alphaF;
       [r, g, b] = applyDespill(r, g, b, alphaF, settings.despill);
 
       if (settings.outputMode === "transparent") {
@@ -717,6 +752,8 @@
     }
 
     outCtx.putImageData(outImg, 0, 0);
+    state.lastOutputAlphaCoverage = src.length ? (alphaCoverageSum / (src.length / 4)) : 0;
+    state.lastOutputLooksEmpty = settings.outputMode === "transparent" && state.lastOutputAlphaCoverage < 0.01;
     renderLivePreview(settings);
     return true;
   }
@@ -1074,7 +1111,7 @@
     if (TOOL.satMin) TOOL.satMin.value = "20";
     if (TOOL.valMin) TOOL.valMin.value = "8";
     if (TOOL.exportSeconds) TOOL.exportSeconds.value = "6";
-    if (TOOL.previewMode) TOOL.previewMode.value = "result";
+    if (TOOL.previewMode) TOOL.previewMode.value = "split";
     if (TOOL.previewBg) TOOL.previewBg.value = "checker";
     if (TOOL.previewZoom) TOOL.previewZoom.value = "100";
     if (TOOL.previewSplit) TOOL.previewSplit.value = "50";
