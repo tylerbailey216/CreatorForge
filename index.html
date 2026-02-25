@@ -1262,9 +1262,10 @@
           Create more, <span class="accent">stress less.</span>
         </div>
         <div class="hero-body">
-          <strong>CreatorForge</strong> is a lightweight toolbox for resizing images,
-          crafting captions, watermarking drafts, checking links, and planning content—
-          all in your browser, with your files staying on your device.
+          <strong>CreatorForge</strong> is your on-device creator edit desk for live-preview
+          image resizing, thumbnail design, watermarking, Canva-style photo/video collages,
+          and AI/chroma background removal - plus captions, link checks, and planning, all
+          in your browser with your files staying on your device.
         </div>
         <div class="hero-tags">
           <span class="hero-tag">TikTok • Reels • Shorts</span>
@@ -1574,6 +1575,9 @@
                 <option value="educational">Educational & clear</option>
                 <option value="hype">Hype / high energy</option>
                 <option value="aesthetic">Aesthetic / minimal</option>
+                <option value="romantic">Romantic</option>
+                <option value="flirty">Flirty</option>
+                <option value="mature">Mature / grown</option>
               </select>
             </div>
             <div style="flex:1">
@@ -2444,24 +2448,39 @@
 
       const hooks = {
         friendly: [
-          `You won't believe how easy this is 👀`,
-          `Sharing this because it helped me so much 💡`,
-          `If you needed this today, you’re not alone 💛`,
+          `You won't believe how easy this is.`,
+          `Sharing this because it helped me so much.`,
+          `If you needed this today, you're not alone.`
         ],
         educational: [
-          `Here’s a simple breakdown you can save for later 📌`,
-          `Most people get this wrong—here’s the fix 🧠`,
-          `Step-by-step so you never have to guess again ✅`,
+          `Here's a simple breakdown you can save for later.`,
+          `Most people get this wrong - here's the fix.`,
+          `Step-by-step so you never have to guess again.`
         ],
         hype: [
-          `This might be my favorite thing I’ve shared yet 🤯`,
-          `We’re leveling up today—let’s gooo ⚡`,
-          `I dare you to try this and NOT be amazed 😤`,
+          `This might be my favorite thing I've shared yet.`,
+          `We're leveling up today - let's go.`,
+          `I dare you to try this and not be impressed.`
         ],
         aesthetic: [
-          `Little things that make life feel softer 🌫`,
-          `Saving this moment here 🕊`,
-          `Details you might miss at first glance ✨`,
+          `Little details that make everything feel softer.`,
+          `Saving this moment here.`,
+          `The kind of details you notice on the second look.`
+        ],
+        romantic: [
+          `Soft moments, slow feelings, and a little bit of magic.`,
+          `This one feels like a love note in real time.`,
+          `Romantic energy only - sweet, warm, and impossible to ignore.`
+        ],
+        flirty: [
+          `Be honest... this deserves a double take.`,
+          `Serving flirty energy on purpose, no apologies.`,
+          `A little tease, a lot of confidence, and exactly the right vibe.`
+        ],
+        mature: [
+          `Grown energy. Clean taste. No extra noise.`,
+          `Confident, polished, and fully in my lane.`,
+          `Soft luxury and mature vibes - subtle, but it says everything.`
         ],
       };
 
@@ -2473,10 +2492,21 @@
         twitter: ['#buildinpublic', '#creators', '#tech', '#workflow'],
       };
 
+      const toneTagSets = {
+        friendly: ['#relatable', '#dailycreator'],
+        educational: ['#tipsandtricks', '#learnsomething'],
+        hype: ['#maincharacterenergy', '#viralenergy'],
+        aesthetic: ['#aestheticvibes', '#visualdiary'],
+        romantic: ['#romanticvibes', '#softlove', '#datenightenergy'],
+        flirty: ['#flirtyvibes', '#confidencecheck', '#toohottoignore'],
+        mature: ['#grownenergy', '#softluxury', '#classycontent'],
+      };
+
       const chosenHooks = hooks[tone] || hooks.friendly;
       const hook = chosenHooks[Math.floor(Math.random() * chosenHooks.length)];
 
       const baseTags = tagSets[platform] || tagSets.instagram;
+      const toneTags = toneTagSets[tone] || [];
       const topicTag = '#' + topic
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '')
@@ -2489,7 +2519,7 @@
         '',
         `💾 Save this so you don’t have to search again.`,
         '',
-        [...new Set([topicTag, ...baseTags])].join(' '),
+        [...new Set([topicTag, ...toneTags, ...baseTags])].join(' '),
       ];
 
       outEl.textContent = captionLines.join('\n');
@@ -4122,4 +4152,6 @@
   <script src="creatorforge-bg-remover.js"></script>
 </body>
 </html>
+
+
 
