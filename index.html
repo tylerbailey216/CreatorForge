@@ -727,6 +727,22 @@
       position: relative;
     }
 
+    .tool-live-preview-window[data-preview-frame="portrait"] {
+      aspect-ratio: 9 / 16;
+      min-height: 300px;
+      max-height: min(64vh, 700px);
+    }
+
+    .tool-live-preview-window[data-preview-frame="landscape"] {
+      aspect-ratio: 16 / 9;
+      min-height: 180px;
+    }
+
+    .tool-live-preview-window[data-preview-frame="square"] {
+      aspect-ratio: 1 / 1;
+      min-height: 220px;
+    }
+
     .tool-live-preview-window .canvas-preview {
       width: 100%;
       max-height: min(48vh, 480px);
@@ -749,6 +765,32 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    .tool-live-preview-meta .tiny {
+      width: 100%;
+    }
+
+    .tool-live-preview-frame-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tool-live-preview-frame-row label {
+      margin: 0;
+      font-size: 0.68rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .tool-live-preview-frame-row select {
+      width: auto;
+      min-width: 132px;
+      font-size: 0.72rem;
+      padding: 5px 8px;
     }
 
     .tool-live-preview-status {
@@ -1482,7 +1524,16 @@
               <span class="badge">Resize preview</span>
               <span class="tiny" id="imagePreviewMeta">No image loaded</span>
             </div>
-            <div class="tool-live-preview-window">
+            <div class="tool-live-preview-frame-row">
+              <label for="imagePreviewFrameMode">Preview frame</label>
+              <select id="imagePreviewFrameMode">
+                <option value="auto" selected>Auto</option>
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+            <div class="tool-live-preview-window" id="imagePreviewWindow" data-preview-frame="auto">
               <div class="tool-live-preview-empty" id="imagePreviewEmpty">
                 Upload an image to see a live resized preview here.
               </div>
@@ -1702,7 +1753,16 @@
               <span class="badge">Watermark preview</span>
               <span class="tiny" id="wmPreviewMeta">No image loaded</span>
             </div>
-            <div class="tool-live-preview-window">
+            <div class="tool-live-preview-frame-row">
+              <label for="wmPreviewFrameMode">Preview frame</label>
+              <select id="wmPreviewFrameMode">
+                <option value="auto" selected>Auto</option>
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+            <div class="tool-live-preview-window" id="wmPreviewWindow" data-preview-frame="auto">
               <div class="tool-live-preview-empty" id="wmPreviewEmpty">
                 Upload an image and type watermark text to preview placement in real time.
               </div>
@@ -1792,7 +1852,16 @@
               <span class="badge">Thumbnail preview</span>
               <span class="tiny" id="thumbPreviewMeta">No thumbnail generated</span>
             </div>
-            <div class="tool-live-preview-window">
+            <div class="tool-live-preview-frame-row">
+              <label for="thumbPreviewFrameMode">Preview frame</label>
+              <select id="thumbPreviewFrameMode">
+                <option value="auto" selected>Auto</option>
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+            <div class="tool-live-preview-window" id="thumbPreviewWindow" data-preview-frame="auto">
               <div class="tool-live-preview-empty" id="thumbPreviewEmpty">
                 Type a main title to generate a live thumbnail preview.
               </div>
@@ -2150,6 +2219,25 @@
         }, 700);
       }
     }
+
+    function bindPreviewFrameMode(selectId, previewWindowId) {
+      const select = document.getElementById(selectId);
+      const previewWindow = document.getElementById(previewWindowId);
+      if (!select || !previewWindow) return;
+
+      const allowed = new Set(['auto', 'portrait', 'landscape', 'square']);
+      const apply = () => {
+        const value = allowed.has(select.value) ? select.value : 'auto';
+        previewWindow.setAttribute('data-preview-frame', value);
+      };
+
+      select.addEventListener('change', apply);
+      apply();
+    }
+
+    bindPreviewFrameMode('imagePreviewFrameMode', 'imagePreviewWindow');
+    bindPreviewFrameMode('wmPreviewFrameMode', 'wmPreviewWindow');
+    bindPreviewFrameMode('thumbPreviewFrameMode', 'thumbPreviewWindow');
 
     /* ---------- Image Resize & Compress ---------- */
     let loadedImage = null;
