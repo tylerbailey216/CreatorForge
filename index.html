@@ -695,6 +695,72 @@
       display: block;
     }
 
+    .tool-live-preview-pane {
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(6, 10, 17, 0.88);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+      align-self: start;
+    }
+
+    .tool-live-preview-window {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%) 0 0 / 18px 18px,
+        linear-gradient(-45deg, rgba(255,255,255,0.04) 25%, transparent 25%) 0 9px / 18px 18px,
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.03) 75%) 9px -9px / 18px 18px,
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.03) 75%) -9px 0 / 18px 18px,
+        radial-gradient(circle at top, #1a2236 0, #05070b 65%);
+      min-height: 220px;
+      max-height: min(52vh, 520px);
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px;
+      position: relative;
+    }
+
+    .tool-live-preview-window .canvas-preview {
+      width: 100%;
+      max-height: min(48vh, 480px);
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .tool-live-preview-empty {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      max-width: 260px;
+      line-height: 1.35;
+      padding: 8px;
+    }
+
+    .tool-live-preview-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tool-live-preview-status {
+      min-height: 16px;
+    }
+
+    .tool-live-preview-note {
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
     .range-row {
       display: flex;
       align-items: center;
@@ -914,6 +980,38 @@
       flex-wrap: wrap;
     }
 
+    #panel-image,
+    #panel-watermark,
+    #panel-thumbnail {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.92fr);
+      gap: 10px 16px;
+      align-items: start;
+    }
+
+    #panel-image > *,
+    #panel-watermark > *,
+    #panel-thumbnail > * {
+      grid-column: 1;
+    }
+
+    #panel-image > .panel-header,
+    #panel-watermark > .panel-header,
+    #panel-thumbnail > .panel-header {
+      grid-column: 1 / -1;
+      margin-bottom: 0;
+    }
+
+    #panel-image > .tool-live-preview-pane,
+    #panel-watermark > .tool-live-preview-pane,
+    #panel-thumbnail > .tool-live-preview-pane {
+      grid-column: 2;
+      grid-row: 2 / span 20;
+      position: sticky;
+      top: 12px;
+    }
+
     /* Live preview tools get a split workbench layout on larger screens */
     #panel-collage {
       grid-column: span 2;
@@ -982,18 +1080,34 @@
     }
 
     @media (max-width: 1240px) {
+      #panel-image,
+      #panel-watermark,
+      #panel-thumbnail,
       #panel-collage {
         grid-column: 1 / -1;
       }
 
+      #panel-image,
+      #panel-watermark,
+      #panel-thumbnail,
       #panel-collage,
       #panel-bgremove {
         grid-template-columns: minmax(0, 1fr);
       }
 
+      #panel-image > *,
+      #panel-watermark > *,
+      #panel-thumbnail > *,
       #panel-collage > *,
       #panel-bgremove > * {
         grid-column: 1 !important;
+      }
+
+      #panel-image > .tool-live-preview-pane,
+      #panel-watermark > .tool-live-preview-pane,
+      #panel-thumbnail > .tool-live-preview-pane {
+        grid-row: auto;
+        position: static;
       }
 
       #panel-bgremove > .bgremover-preview-controls .bgremover-grid-3 {
@@ -1298,6 +1412,7 @@
               <span class="emoji">🖼</span> Image Resize & Compress
             </div>
             <div class="panel-header-right">
+              <span class="badge">Live preview</span>
               <span class="badge">On-device</span>
               <span class="hint" title="Resize and compress photos for IG, Reels, Stories, YouTube, and Facebook.">?</span>
             </div>
@@ -1362,7 +1477,24 @@
             from the highest quality original you have.
           </div>
 
-          <canvas id="imageCanvas" style="display:none;"></canvas>
+          <div class="tool-live-preview-pane">
+            <div class="tool-live-preview-meta">
+              <span class="badge">Resize preview</span>
+              <span class="tiny" id="imagePreviewMeta">No image loaded</span>
+            </div>
+            <div class="tool-live-preview-window">
+              <div class="tool-live-preview-empty" id="imagePreviewEmpty">
+                Upload an image to see a live resized preview here.
+              </div>
+              <canvas id="imageCanvas" class="canvas-preview" style="display:none;"></canvas>
+            </div>
+            <div class="tiny tool-live-preview-status" id="imagePreviewStatus">
+              Preview updates as you change width/height.
+            </div>
+            <div class="tool-live-preview-note">
+              The preview uses the processed output canvas. JPEG quality primarily affects download compression, not preview sharpness.
+            </div>
+          </div>
         </div>
 
         <!-- Caption Builder Panel -->
@@ -1504,6 +1636,7 @@
               <span class="emoji">📝</span> Watermark Helper
             </div>
             <div class="panel-header-right">
+              <span class="badge">Live preview</span>
               <span class="badge">On-device</span>
               <span class="hint" title="Overlay your @handle or brand name as text on top of your image before sharing.">?</span>
             </div>
@@ -1559,11 +1692,28 @@
             </button>
           </div>
 
-          <canvas id="watermarkCanvas" class="canvas-preview" style="display:none;"></canvas>
-
           <div class="tiny">
             This tool overlays text only (no image logos yet). Great for quick
             protection before sending files for review.
+          </div>
+
+          <div class="tool-live-preview-pane">
+            <div class="tool-live-preview-meta">
+              <span class="badge">Watermark preview</span>
+              <span class="tiny" id="wmPreviewMeta">No image loaded</span>
+            </div>
+            <div class="tool-live-preview-window">
+              <div class="tool-live-preview-empty" id="wmPreviewEmpty">
+                Upload an image and type watermark text to preview placement in real time.
+              </div>
+              <canvas id="watermarkCanvas" class="canvas-preview" style="display:none;"></canvas>
+            </div>
+            <div class="tiny tool-live-preview-status" id="wmPreviewStatus">
+              Live preview updates while you edit text, position, size, color, and opacity.
+            </div>
+            <div class="tool-live-preview-note">
+              Downloads remain disabled until watermark text is present, but the base image will preview immediately after upload.
+            </div>
           </div>
         </div>
 
@@ -1574,6 +1724,7 @@
               <span class="emoji">🎬</span> Thumbnail Starter
             </div>
             <div class="panel-header-right">
+              <span class="badge">Live preview</span>
               <span class="badge">Text-first</span>
               <span class="hint" title="Generate simple, bold text layouts for thumbnails and covers you can layer with your photos.">?</span>
             </div>
@@ -1631,11 +1782,28 @@
             </button>
           </div>
 
-          <canvas id="thumbCanvas" class="canvas-preview" style="display:none;"></canvas>
-
           <div class="tiny">
             This is a simple text-based layout starter. You can layer this under
             your photos or use as-is for clean, bold titles.
+          </div>
+
+          <div class="tool-live-preview-pane">
+            <div class="tool-live-preview-meta">
+              <span class="badge">Thumbnail preview</span>
+              <span class="tiny" id="thumbPreviewMeta">No thumbnail generated</span>
+            </div>
+            <div class="tool-live-preview-window">
+              <div class="tool-live-preview-empty" id="thumbPreviewEmpty">
+                Type a main title to generate a live thumbnail preview.
+              </div>
+              <canvas id="thumbCanvas" class="canvas-preview" style="display:none;"></canvas>
+            </div>
+            <div class="tiny tool-live-preview-status" id="thumbPreviewStatus">
+              Preview updates while you change title, layout, size, and style.
+            </div>
+            <div class="tool-live-preview-note">
+              The live preview uses the same canvas that downloads as PNG.
+            </div>
           </div>
         </div>
 
@@ -1995,6 +2163,93 @@
     const qualityInput = document.getElementById('qualityInput');
     const imageCanvas = document.getElementById('imageCanvas');
     const downloadBtn = document.getElementById('downloadImageBtn');
+    const imagePreviewEmpty = document.getElementById('imagePreviewEmpty');
+    const imagePreviewMeta = document.getElementById('imagePreviewMeta');
+    const imagePreviewStatus = document.getElementById('imagePreviewStatus');
+
+    function setImageResizePreviewVisible(show) {
+      if (imageCanvas) imageCanvas.style.display = show ? 'block' : 'none';
+      if (imagePreviewEmpty) imagePreviewEmpty.style.display = show ? 'none' : 'block';
+    }
+
+    function setImageResizePreviewMeta(text) {
+      if (imagePreviewMeta) imagePreviewMeta.textContent = text;
+    }
+
+    function setImageResizePreviewStatus(text) {
+      if (imagePreviewStatus) imagePreviewStatus.textContent = text;
+    }
+
+    function renderImageResizePreview(options = {}) {
+      const generateBlob = !!options.generateBlob;
+      const silent = !!options.silent;
+
+      if (!loadedImage || !imageCanvas) {
+        if (!silent) alert('Please upload an image first.');
+        setImageResizePreviewVisible(false);
+        setImageResizePreviewMeta('No image loaded');
+        setImageResizePreviewStatus('Upload an image to start the live preview.');
+        return false;
+      }
+
+      let targetW = parseInt(widthInput?.value, 10);
+      let targetH = parseInt(heightInput?.value, 10);
+
+      if (!targetW && !targetH) {
+        targetW = loadedImage.width;
+        targetH = loadedImage.height;
+      } else if (!targetW) {
+        targetW = Math.round(targetH * originalAspect);
+      } else if (!targetH) {
+        targetH = Math.round(targetW / originalAspect);
+      }
+
+      if (!targetW || !targetH || targetW <= 0 || targetH <= 0) {
+        if (!silent) alert('Please set a valid width and/or height.');
+        return false;
+      }
+
+      const canvas = imageCanvas;
+      const ctx = canvas.getContext('2d');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(loadedImage, 0, 0, targetW, targetH);
+
+      setImageResizePreviewVisible(true);
+      setImageResizePreviewMeta(`${loadedImage.width}x${loadedImage.height} -> ${targetW}x${targetH}`);
+
+      let quality = parseInt(qualityInput?.value, 10);
+      if (!quality || quality < 10) quality = 10;
+      if (quality > 100) quality = 100;
+
+      if (!generateBlob) {
+        resizedBlob = null;
+        if (downloadBtn) downloadBtn.disabled = true;
+        setImageResizePreviewStatus(`Live preview updated (${targetW} x ${targetH}). Click Process image to regenerate download.`);
+        return true;
+      }
+
+      const q = quality / 100;
+      canvas.toBlob(
+        blob => {
+          if (!blob) {
+            alert('Something went wrong generating the image.');
+            return;
+          }
+          resizedBlob = blob;
+          if (downloadBtn) downloadBtn.disabled = false;
+          setImageResizePreviewStatus(`Processed ${targetW} x ${targetH} JPEG at ${quality}% quality. Ready to download.`);
+        },
+        'image/jpeg',
+        q
+      );
+      return true;
+    }
+
+    function queueImageResizeLivePreview() {
+      renderImageResizePreview({ silent: true, generateBlob: false });
+    }
 
     if (imageInput) {
       imageInput.addEventListener('change', (event) => {
@@ -2012,6 +2267,7 @@
             }
             resizedBlob = null;
             downloadBtn.disabled = true;
+            queueImageResizeLivePreview();
           };
           img.src = e.target.result;
         };
@@ -2027,70 +2283,46 @@
       heightInput.value = h || '';
       document.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
       button.classList.add('active');
+      queueImageResizeLivePreview();
     }
 
     widthInput?.addEventListener('input', () => {
-      if (!keepRatioCheckbox.checked || !originalAspect) return;
+      if (!keepRatioCheckbox.checked || !originalAspect) {
+        queueImageResizeLivePreview();
+        return;
+      }
       const w = parseInt(widthInput.value, 10);
-      if (!w || w <= 0) return;
+      if (!w || w <= 0) {
+        queueImageResizeLivePreview();
+        return;
+      }
       const newH = Math.round(w / originalAspect);
       heightInput.value = newH;
+      queueImageResizeLivePreview();
     });
 
     heightInput?.addEventListener('input', () => {
-      if (!keepRatioCheckbox.checked || !originalAspect) return;
+      if (!keepRatioCheckbox.checked || !originalAspect) {
+        queueImageResizeLivePreview();
+        return;
+      }
       const h = parseInt(heightInput.value, 10);
-      if (!h || h <= 0) return;
+      if (!h || h <= 0) {
+        queueImageResizeLivePreview();
+        return;
+      }
       const newW = Math.round(h * originalAspect);
       widthInput.value = newW;
+      queueImageResizeLivePreview();
     });
 
+    widthInput?.addEventListener('change', queueImageResizeLivePreview);
+    heightInput?.addEventListener('change', queueImageResizeLivePreview);
+    qualityInput?.addEventListener('input', queueImageResizeLivePreview);
+    keepRatioCheckbox?.addEventListener('change', queueImageResizeLivePreview);
+
     function resizeImage() {
-      if (!loadedImage) {
-        alert('Please upload an image first.');
-        return;
-      }
-      let targetW = parseInt(widthInput.value, 10);
-      let targetH = parseInt(heightInput.value, 10);
-
-      if (!targetW && !targetH) {
-        targetW = loadedImage.width;
-        targetH = loadedImage.height;
-      } else if (!targetW) {
-        targetW = Math.round(targetH * originalAspect);
-      } else if (!targetH) {
-        targetH = Math.round(targetW / originalAspect);
-      }
-
-      if (!targetW || !targetH || targetW <= 0 || targetH <= 0) {
-        alert('Please set a valid width and/or height.');
-        return;
-      }
-
-      const canvas = imageCanvas;
-      const ctx = canvas.getContext('2d');
-      canvas.width = targetW;
-      canvas.height = targetH;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(loadedImage, 0, 0, targetW, targetH);
-
-      let quality = parseInt(qualityInput.value, 10);
-      if (!quality || quality < 10) quality = 10;
-      if (quality > 100) quality = 100;
-      const q = quality / 100;
-
-      canvas.toBlob(
-        blob => {
-          if (!blob) {
-            alert('Something went wrong generating the image.');
-            return;
-          }
-          resizedBlob = blob;
-          downloadBtn.disabled = false;
-        },
-        'image/jpeg',
-        q
-      );
+      renderImageResizePreview({ generateBlob: true, silent: false });
     }
 
     function downloadResizedImage() {
@@ -2394,16 +2626,38 @@
     const wmOpacityInput = document.getElementById('watermarkOpacity');
     const wmOpacityLabel = document.getElementById('watermarkOpacityLabel');
     const wmDownloadBtn = document.getElementById('downloadWatermarkBtn');
+    const wmPreviewEmpty = document.getElementById('wmPreviewEmpty');
+    const wmPreviewMeta = document.getElementById('wmPreviewMeta');
+    const wmPreviewStatus = document.getElementById('wmPreviewStatus');
+
+    function setWatermarkPreviewVisible(show) {
+      if (wmCanvas) wmCanvas.style.display = show ? 'block' : 'none';
+      if (wmPreviewEmpty) wmPreviewEmpty.style.display = show ? 'none' : 'block';
+    }
+
+    function setWatermarkPreviewMeta(text) {
+      if (wmPreviewMeta) wmPreviewMeta.textContent = text;
+    }
+
+    function setWatermarkPreviewStatus(text) {
+      if (wmPreviewStatus) wmPreviewStatus.textContent = text;
+    }
+
+    function queueWatermarkLivePreview() {
+      renderWatermarkPreview({ silent: true, allowBlankText: true });
+    }
 
     if (wmSizeInput && wmSizeLabel) {
       wmSizeInput.addEventListener('input', () => {
         wmSizeLabel.textContent = wmSizeInput.value + 'px';
+        queueWatermarkLivePreview();
       });
     }
 
     if (wmOpacityInput && wmOpacityLabel) {
       wmOpacityInput.addEventListener('input', () => {
         wmOpacityLabel.textContent = wmOpacityInput.value + '%';
+        queueWatermarkLivePreview();
       });
     }
 
@@ -2417,8 +2671,8 @@
           img.onload = function() {
             wmImage = img;
             wmBlob = null;
-            wmCanvas.style.display = 'none';
-            wmDownloadBtn.disabled = true;
+            if (wmDownloadBtn) wmDownloadBtn.disabled = true;
+            queueWatermarkLivePreview();
           };
           img.src = e.target.result;
         };
@@ -2437,15 +2691,22 @@
       };
     }
 
-    function previewWatermark() {
+    function renderWatermarkPreview(options = {}) {
+      const silent = !!options.silent;
+      const allowBlankText = !!options.allowBlankText;
+
       if (!wmImage) {
-        alert('Upload a base image first.');
-        return;
+        if (!silent) alert('Upload a base image first.');
+        setWatermarkPreviewVisible(false);
+        setWatermarkPreviewMeta('No image loaded');
+        setWatermarkPreviewStatus('Upload an image to start the live preview.');
+        return false;
       }
+
       const text = (wmTextInput?.value || '').trim();
-      if (!text) {
-        alert('Add some watermark text (e.g. @yourhandle).');
-        return;
+      if (!text && !allowBlankText) {
+        if (!silent) alert('Add some watermark text (e.g. @yourhandle).');
+        return false;
       }
 
       const pos = wmPosSelect?.value || 'bottom-right';
@@ -2462,6 +2723,15 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(wmImage, 0, 0, canvas.width, canvas.height);
+      setWatermarkPreviewVisible(true);
+      setWatermarkPreviewMeta(`${canvas.width}x${canvas.height}`);
+
+      if (!text) {
+        wmBlob = null;
+        if (wmDownloadBtn) wmDownloadBtn.disabled = true;
+        setWatermarkPreviewStatus('Base image loaded. Add watermark text to enable download.');
+        return true;
+      }
 
       ctx.font = `600 ${size}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
       ctx.textBaseline = 'bottom';
@@ -2502,13 +2772,22 @@
       ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
       ctx.fillText(text, x, y);
 
-      wmCanvas.style.display = 'block';
+      setWatermarkPreviewStatus(`Live preview updated (${pos}, ${size}px, ${Math.round(opacity * 100)}%).`);
 
       canvas.toBlob((blob) => {
         if (!blob) return;
         wmBlob = blob;
-        wmDownloadBtn.disabled = false;
+        if (wmDownloadBtn) wmDownloadBtn.disabled = false;
       }, 'image/png', 0.95);
+      return true;
+    }
+
+    wmTextInput?.addEventListener('input', queueWatermarkLivePreview);
+    wmPosSelect?.addEventListener('change', queueWatermarkLivePreview);
+    wmColorInput?.addEventListener('input', queueWatermarkLivePreview);
+
+    function previewWatermark() {
+      renderWatermarkPreview({ silent: false, allowBlankText: false });
     }
 
     function downloadWatermarkedImage() {
@@ -2536,6 +2815,26 @@
     const thumbLayoutSelect = document.getElementById('thumbLayout');
     const thumbStyleSelect = document.getElementById('thumbStyle');
     const thumbDownloadBtn = document.getElementById('downloadThumbBtn');
+    const thumbPreviewEmpty = document.getElementById('thumbPreviewEmpty');
+    const thumbPreviewMeta = document.getElementById('thumbPreviewMeta');
+    const thumbPreviewStatus = document.getElementById('thumbPreviewStatus');
+
+    function setThumbPreviewVisible(show) {
+      if (thumbCanvas) thumbCanvas.style.display = show ? 'block' : 'none';
+      if (thumbPreviewEmpty) thumbPreviewEmpty.style.display = show ? 'none' : 'block';
+    }
+
+    function setThumbPreviewMeta(text) {
+      if (thumbPreviewMeta) thumbPreviewMeta.textContent = text;
+    }
+
+    function setThumbPreviewStatus(text) {
+      if (thumbPreviewStatus) thumbPreviewStatus.textContent = text;
+    }
+
+    function queueThumbnailLivePreview() {
+      generateThumbnail({ silent: true });
+    }
 
     function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, align = 'center') {
       if (!text) return y;
@@ -2565,7 +2864,8 @@
       return currentY;
     }
 
-    function generateThumbnail() {
+    function generateThumbnail(options = {}) {
+      const silent = !!options.silent;
       const title = (thumbTitleInput?.value || '').trim();
       const subtitle = (thumbSubtitleInput?.value || '').trim();
       const preset = thumbPresetSelect?.value || '1280x720';
@@ -2573,7 +2873,12 @@
       const style = thumbStyleSelect?.value || 'dark';
 
       if (!title) {
-        alert('Add main title text first.');
+        thumbBlob = null;
+        if (thumbDownloadBtn) thumbDownloadBtn.disabled = true;
+        setThumbPreviewVisible(false);
+        setThumbPreviewMeta('No thumbnail generated');
+        setThumbPreviewStatus('Type a main title to start the live preview.');
+        if (!silent) alert('Add main title text first.');
         return;
       }
 
@@ -2666,14 +2971,22 @@
         ctx.strokeRect(w * 0.03, h * 0.04, w * 0.94, h * 0.92);
       }
 
-      thumbCanvas.style.display = 'block';
+      setThumbPreviewVisible(true);
+      setThumbPreviewMeta(`${w}x${h} | ${layout} | ${style}`);
+      setThumbPreviewStatus('Live preview updated. PNG export will match this canvas.');
 
       canvas.toBlob((blob) => {
         if (!blob) return;
         thumbBlob = blob;
-        thumbDownloadBtn.disabled = false;
+        if (thumbDownloadBtn) thumbDownloadBtn.disabled = false;
       }, 'image/png', 0.95);
     }
+
+    thumbTitleInput?.addEventListener('input', queueThumbnailLivePreview);
+    thumbSubtitleInput?.addEventListener('input', queueThumbnailLivePreview);
+    thumbPresetSelect?.addEventListener('change', queueThumbnailLivePreview);
+    thumbLayoutSelect?.addEventListener('change', queueThumbnailLivePreview);
+    thumbStyleSelect?.addEventListener('change', queueThumbnailLivePreview);
 
     function downloadThumbnail() {
       if (!thumbBlob) {
@@ -3721,3 +4034,4 @@
   <script src="creatorforge-bg-remover.js"></script>
 </body>
 </html>
+
