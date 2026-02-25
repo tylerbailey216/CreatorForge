@@ -19,6 +19,7 @@
       --radius-md: 14px;
       --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.7);
       --border-subtle: 1px solid rgba(255, 255, 255, 0.06);
+      --app-max-width: 1420px;
     }
 
     * {
@@ -44,8 +45,8 @@
 
     .app {
       width: 100%;
-      max-width: 1160px;
-      padding: 24px 16px 40px;
+      max-width: var(--app-max-width);
+      padding: 24px 18px 44px;
     }
 
     header {
@@ -311,9 +312,10 @@
 
     .tool-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
       margin-bottom: 24px;
+      align-items: stretch;
     }
 
     @media (max-width: 880px) {
@@ -342,15 +344,16 @@
       border-radius: var(--radius-md);
       border: var(--border-subtle);
       background: radial-gradient(circle at top left, #242f45 0, #101621 60%);
-      padding: 12px 12px 12px;
+      padding: 13px 13px 12px;
       box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       position: relative;
       overflow: hidden;
       transition: transform 0.16s ease, box-shadow 0.2s ease, border-color 0.18s ease;
       cursor: pointer;
+      min-height: 142px;
     }
 
     .tool-card::before {
@@ -444,10 +447,11 @@
       border: var(--border-subtle);
       background: linear-gradient(135deg, #141a23 0, #080b12 55%);
       box-shadow: var(--shadow-soft);
-      padding: 16px 16px 18px;
+      padding: 18px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
+      gap: 16px;
+      align-items: start;
     }
 
     @media (max-width: 960px) {
@@ -466,13 +470,17 @@
       border-radius: var(--radius-md);
       border: 1px solid rgba(255, 255, 255, 0.04);
       background: radial-gradient(circle at top left, #202939 0, #090c13 60%);
-      padding: 14px 14px 16px;
+      padding: 16px 16px 18px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      min-height: 170px;
+      gap: 10px;
+      min-height: 0;
       position: relative;
       overflow: hidden;
+    }
+
+    .panel > * {
+      min-width: 0;
     }
 
     .panel-header {
@@ -562,7 +570,7 @@
     .inline-controls {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
       align-items: center;
     }
 
@@ -709,6 +717,8 @@
       touch-action: none;
       cursor: grab;
       min-height: 180px;
+      max-height: min(62vh, 640px);
+      object-fit: contain;
     }
 
     .collage-canvas.dragging {
@@ -723,7 +733,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      max-height: 170px;
+      max-height: 260px;
       overflow: auto;
     }
 
@@ -763,6 +773,13 @@
 
     .collage-selection-row {
       justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .collage-selection-row .tiny {
+      flex: 1;
+      text-align: right;
     }
 
     .collage-status {
@@ -787,7 +804,8 @@
       overflow: hidden;
       position: relative;
       overflow: auto;
-      max-height: 420px;
+      max-height: min(58vh, 560px);
+      min-height: 260px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -830,7 +848,7 @@
       padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .bgremover-slider-row {
@@ -896,6 +914,105 @@
       flex-wrap: wrap;
     }
 
+    /* Live preview tools get a split workbench layout on larger screens */
+    #panel-collage {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.95fr);
+      gap: 10px 16px;
+      align-items: start;
+    }
+
+    #panel-collage > * {
+      grid-column: 1;
+    }
+
+    #panel-collage > .panel-header {
+      grid-column: 1 / -1;
+      margin-bottom: 0;
+    }
+
+    #panel-collage > .collage-selection-row,
+    #panel-collage > #collageCanvas,
+    #panel-collage > .collage-preview-note,
+    #panel-collage > #collageSlotList,
+    #panel-collage > #collageStatus {
+      grid-column: 2;
+    }
+
+    #panel-collage > #collageCanvas {
+      align-self: start;
+    }
+
+    #panel-collage > .tiny:last-of-type {
+      grid-column: 1 / -1;
+    }
+
+    #panel-bgremove {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+      gap: 10px 18px;
+      align-items: start;
+    }
+
+    #panel-bgremove > * {
+      grid-column: 1;
+    }
+
+    #panel-bgremove > .panel-header {
+      grid-column: 1 / -1;
+      margin-bottom: 0;
+    }
+
+    #panel-bgremove > .bgremover-preview-controls,
+    #panel-bgremove > .bgremover-preview-wrap,
+    #panel-bgremove > .bgremover-meta,
+    #panel-bgremove > #bgremoverStatus,
+    #panel-bgremove > #bgremoverStatus + .tiny {
+      grid-column: 2;
+    }
+
+    #panel-bgremove > .bgremover-preview-controls .bgremover-grid-3 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #panel-bgremove > .bgremover-preview-wrap {
+      align-self: start;
+    }
+
+    @media (max-width: 1240px) {
+      #panel-collage {
+        grid-column: 1 / -1;
+      }
+
+      #panel-collage,
+      #panel-bgremove {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      #panel-collage > *,
+      #panel-bgremove > * {
+        grid-column: 1 !important;
+      }
+
+      #panel-bgremove > .bgremover-preview-controls .bgremover-grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      #panel-collage > .collage-selection-row {
+        justify-content: flex-start;
+      }
+
+      #panel-collage > .collage-selection-row .tiny {
+        text-align: left;
+      }
+
+      #panel-bgremove #bgremoverVideoControlsWrap > .bgremover-slider-row:first-child {
+        grid-column: 1 !important;
+      }
+    }
+
     @keyframes orbit {
       from { transform: rotate(0deg) scale(1); }
       to { transform: rotate(360deg) scale(1); }
@@ -928,6 +1045,10 @@
       .panel {
         padding: 12px 12px 14px;
       }
+      .workspace {
+        padding: 12px;
+        gap: 12px;
+      }
       input[type="file"],
       input[type="text"],
       input[type="number"],
@@ -941,6 +1062,9 @@
       }
       .collage-slot-row {
         grid-template-columns: 1fr;
+      }
+      .collage-selection-row .tiny {
+        text-align: left;
       }
       .bgremover-grid,
       .bgremover-grid-3 {
