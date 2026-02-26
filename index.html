@@ -750,6 +750,17 @@
       flex: 0 0 auto;
     }
 
+    .tool-live-preview-window .tool-live-preview-video {
+      width: 100%;
+      max-height: min(48vh, 480px);
+      display: block;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #04070d;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
     .tool-live-preview-empty {
       font-size: 0.75rem;
       color: var(--muted);
@@ -801,6 +812,28 @@
       font-size: 0.68rem;
       color: var(--muted);
       line-height: 1.35;
+    }
+
+    .tool-progress {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
+      appearance: none;
+    }
+
+    .tool-progress::-webkit-progress-bar {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .tool-progress::-webkit-progress-value {
+      background: linear-gradient(90deg, #a0f0ff, #86ffd0);
+    }
+
+    .tool-progress::-moz-progress-bar {
+      background: linear-gradient(90deg, #a0f0ff, #86ffd0);
     }
 
     .range-row {
@@ -1023,6 +1056,7 @@
     }
 
     #panel-image,
+    #panel-reverse,
     #panel-watermark,
     #panel-thumbnail {
       grid-column: span 2;
@@ -1033,12 +1067,14 @@
     }
 
     #panel-image > *,
+    #panel-reverse > *,
     #panel-watermark > *,
     #panel-thumbnail > * {
       grid-column: 1;
     }
 
     #panel-image > .panel-header,
+    #panel-reverse > .panel-header,
     #panel-watermark > .panel-header,
     #panel-thumbnail > .panel-header {
       grid-column: 1 / -1;
@@ -1046,6 +1082,7 @@
     }
 
     #panel-image > .tool-live-preview-pane,
+    #panel-reverse > .tool-live-preview-pane,
     #panel-watermark > .tool-live-preview-pane,
     #panel-thumbnail > .tool-live-preview-pane {
       grid-column: 2;
@@ -1123,6 +1160,7 @@
 
     @media (max-width: 1240px) {
       #panel-image,
+      #panel-reverse,
       #panel-watermark,
       #panel-thumbnail,
       #panel-collage {
@@ -1130,6 +1168,7 @@
       }
 
       #panel-image,
+      #panel-reverse,
       #panel-watermark,
       #panel-thumbnail,
       #panel-collage,
@@ -1138,6 +1177,7 @@
       }
 
       #panel-image > *,
+      #panel-reverse > *,
       #panel-watermark > *,
       #panel-thumbnail > *,
       #panel-collage > *,
@@ -1146,6 +1186,7 @@
       }
 
       #panel-image > .tool-live-preview-pane,
+      #panel-reverse > .tool-live-preview-pane,
       #panel-watermark > .tool-live-preview-pane,
       #panel-thumbnail > .tool-live-preview-pane {
         grid-row: auto;
@@ -1404,6 +1445,22 @@
           <div class="tool-bottom">
             <div class="tool-meta">Text-first layouts</div>
             <button class="btn-small" type="button" onclick="event.stopPropagation(); openPanel('thumbnail');">
+              Open tool ↗
+            </button>
+          </div>
+        </article>
+
+        <article class="tool-card" onclick="openPanel('reverse')">
+          <div class="tool-header">
+            <div class="tool-title">Reverse Video</div>
+            <div class="tool-tag">Video</div>
+          </div>
+          <div class="tool-body">
+            Flip a video clip so it plays backward, then download it as a shareable file right in your browser.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">Upload • reverse • download</div>
+            <button class="btn-small" type="button" onclick="event.stopPropagation(); openPanel('reverse');">
               Open tool ↗
             </button>
           </div>
@@ -1880,6 +1937,109 @@
           </div>
         </div>
 
+        <!-- Reverse Video -->
+        <div class="panel" id="panel-reverse">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">⏪</span> Reverse Video
+            </div>
+            <div class="panel-header-right">
+              <span class="badge">Live preview</span>
+              <span class="badge">On-device</span>
+              <span class="hint" title="Play a video backward and download the result without uploading it anywhere.">?</span>
+            </div>
+          </div>
+
+          <div>
+            <label for="reverseVideoInput">Upload a video</label>
+            <input type="file" id="reverseVideoInput" accept="video/*" />
+          </div>
+
+          <div class="bgremover-grid">
+            <div>
+              <label for="reverseVideoLength">How much to reverse</label>
+              <select id="reverseVideoLength">
+                <option value="5">First 5 seconds (fastest)</option>
+                <option value="10" selected>First 10 seconds</option>
+                <option value="15">First 15 seconds</option>
+                <option value="30">First 30 seconds</option>
+                <option value="full">Whole video (slowest)</option>
+              </select>
+            </div>
+            <div>
+              <label for="reverseVideoMaxSize">Video size (smaller = faster)</label>
+              <select id="reverseVideoMaxSize">
+                <option value="same">Keep original size</option>
+                <option value="1080">1080p max</option>
+                <option value="720" selected>720p max (recommended)</option>
+                <option value="480">480p max (fastest)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="bgremover-grid">
+            <div>
+              <label for="reverseVideoFps">Playback smoothness</label>
+              <select id="reverseVideoFps">
+                <option value="24">Standard (24 fps)</option>
+                <option value="30" selected>Smooth (30 fps)</option>
+                <option value="60">Extra smooth (60 fps, slower)</option>
+              </select>
+            </div>
+            <div>
+              <label for="reverseVideoPreviewMode">Preview to show</label>
+              <select id="reverseVideoPreviewMode">
+                <option value="source" selected>Original video</option>
+                <option value="output">Reversed video</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" id="reverseVideoStartBtn">Reverse video</button>
+            <button class="btn-small" type="button" id="reverseVideoDownloadBtn" disabled>Download reversed video</button>
+            <button class="btn-small" type="button" id="reverseVideoResetBtn">Clear</button>
+          </div>
+
+          <div class="tool-live-preview-note">
+            Tip: Short clips finish much faster. This browser-only version exports WebM and does not include audio.
+          </div>
+
+          <progress class="tool-progress" id="reverseVideoProgress" max="100" value="0"></progress>
+          <div class="tiny" id="reverseVideoProgressLabel">Upload a video to get started.</div>
+
+          <div class="tool-live-preview-pane">
+            <div class="tool-live-preview-meta">
+              <span class="badge" id="reverseVideoPreviewBadge">Preview: original</span>
+              <span class="tiny" id="reverseVideoMeta">No video loaded</span>
+            </div>
+            <div class="tool-live-preview-frame-row">
+              <label for="reverseVideoPreviewFrameMode">Preview frame</label>
+              <select id="reverseVideoPreviewFrameMode">
+                <option value="auto" selected>Auto</option>
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+            <div class="tool-live-preview-window" id="reverseVideoPreviewWindow" data-preview-frame="auto">
+              <div class="tool-live-preview-empty" id="reverseVideoPreviewEmpty">
+                Upload a video and click Reverse video to create a backward-playing version.
+              </div>
+              <video id="reverseVideoPreview" class="tool-live-preview-video" controls playsinline muted loop style="display:none;"></video>
+            </div>
+            <div class="tiny tool-live-preview-status" id="reverseVideoStatus">
+              Ready when you are.
+            </div>
+            <div class="tool-live-preview-note">
+              You can switch the preview between the original clip and the reversed result after processing.
+            </div>
+          </div>
+
+          <video id="reverseVideoSource" class="bgremover-hidden" playsinline muted preload="auto"></video>
+          <canvas id="reverseVideoCanvas" class="bgremover-hidden"></canvas>
+        </div>
+
         <!-- Photo & Video Collage Maker -->
         <div class="panel" id="panel-collage">
           <div class="panel-header">
@@ -2208,6 +2368,7 @@
         : kind === 'planner' ? 'panel-link-planner'
         : kind === 'watermark' ? 'panel-watermark'
         : kind === 'thumbnail' ? 'panel-thumbnail'
+        : kind === 'reverse' ? 'panel-reverse'
         : kind === 'collage' ? 'panel-collage'
         : kind === 'bgremove' ? 'panel-bgremove'
         : null;
@@ -2242,6 +2403,7 @@
     bindPreviewFrameMode('imagePreviewFrameMode', 'imagePreviewWindow');
     bindPreviewFrameMode('wmPreviewFrameMode', 'wmPreviewWindow');
     bindPreviewFrameMode('thumbPreviewFrameMode', 'thumbPreviewWindow');
+    bindPreviewFrameMode('reverseVideoPreviewFrameMode', 'reverseVideoPreviewWindow');
 
     /* ---------- Image Resize & Compress ---------- */
     let loadedImage = null;
@@ -3119,6 +3281,539 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+
+    /* ---------- Reverse Video (browser-only, no audio) ---------- */
+    let reverseVideoToolInitialized = false;
+    let reverseVideoSourceUrl = null;
+    let reverseVideoOutputUrl = null;
+    let reverseVideoOutputBlob = null;
+    let reverseVideoSourceFileName = '';
+    let reverseVideoSourceFileSize = 0;
+    let reverseVideoWorking = false;
+    let reverseVideoPreviewActive = 'none';
+
+    const reverseVideoInput = document.getElementById('reverseVideoInput');
+    const reverseVideoLengthSelect = document.getElementById('reverseVideoLength');
+    const reverseVideoMaxSizeSelect = document.getElementById('reverseVideoMaxSize');
+    const reverseVideoFpsSelect = document.getElementById('reverseVideoFps');
+    const reverseVideoPreviewModeSelect = document.getElementById('reverseVideoPreviewMode');
+    const reverseVideoStartBtn = document.getElementById('reverseVideoStartBtn');
+    const reverseVideoDownloadBtn = document.getElementById('reverseVideoDownloadBtn');
+    const reverseVideoResetBtn = document.getElementById('reverseVideoResetBtn');
+    const reverseVideoPreview = document.getElementById('reverseVideoPreview');
+    const reverseVideoPreviewEmpty = document.getElementById('reverseVideoPreviewEmpty');
+    const reverseVideoPreviewBadge = document.getElementById('reverseVideoPreviewBadge');
+    const reverseVideoMeta = document.getElementById('reverseVideoMeta');
+    const reverseVideoStatus = document.getElementById('reverseVideoStatus');
+    const reverseVideoProgress = document.getElementById('reverseVideoProgress');
+    const reverseVideoProgressLabel = document.getElementById('reverseVideoProgressLabel');
+    const reverseVideoSource = document.getElementById('reverseVideoSource');
+    const reverseVideoCanvas = document.getElementById('reverseVideoCanvas');
+
+    function reverseVideoClamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function reverseVideoSleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function reverseVideoFormatClock(seconds) {
+      const s = Math.max(0, Number(seconds) || 0);
+      const mins = Math.floor(s / 60);
+      const secs = Math.floor(s % 60);
+      const tenths = Math.floor((s % 1) * 10);
+      if (s < 10) return `${mins}:${secs}.${tenths}`;
+      return `${mins}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function reverseVideoFormatBytes(bytes) {
+      const n = Number(bytes) || 0;
+      if (n < 1024) return `${n} B`;
+      if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+      if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+      return `${(n / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+    }
+
+    function setReverseVideoStatus(message) {
+      if (reverseVideoStatus) reverseVideoStatus.textContent = message || '';
+    }
+
+    function setReverseVideoMeta(message) {
+      if (reverseVideoMeta) reverseVideoMeta.textContent = message || '';
+    }
+
+    function setReverseVideoPreviewBadge(message) {
+      if (reverseVideoPreviewBadge) reverseVideoPreviewBadge.textContent = message || 'Preview';
+    }
+
+    function setReverseVideoProgress(percent, label) {
+      const safe = reverseVideoClamp(Math.round(Number(percent) || 0), 0, 100);
+      if (reverseVideoProgress) reverseVideoProgress.value = safe;
+      if (reverseVideoProgressLabel) reverseVideoProgressLabel.textContent = label || `${safe}%`;
+    }
+
+    function setReverseVideoPreviewVisible(show) {
+      if (reverseVideoPreview) reverseVideoPreview.style.display = show ? 'block' : 'none';
+      if (reverseVideoPreviewEmpty) reverseVideoPreviewEmpty.style.display = show ? 'none' : 'block';
+    }
+
+    function updateReverseVideoButtons() {
+      const hasSource = !!reverseVideoSourceUrl;
+      const hasOutput = !!reverseVideoOutputBlob;
+      if (reverseVideoStartBtn) reverseVideoStartBtn.disabled = !hasSource || reverseVideoWorking;
+      if (reverseVideoDownloadBtn) reverseVideoDownloadBtn.disabled = !hasOutput || reverseVideoWorking;
+      if (reverseVideoResetBtn) reverseVideoResetBtn.disabled = reverseVideoWorking || (!hasSource && !hasOutput);
+      if (reverseVideoInput) reverseVideoInput.disabled = reverseVideoWorking;
+      if (reverseVideoLengthSelect) reverseVideoLengthSelect.disabled = reverseVideoWorking;
+      if (reverseVideoMaxSizeSelect) reverseVideoMaxSizeSelect.disabled = reverseVideoWorking;
+      if (reverseVideoFpsSelect) reverseVideoFpsSelect.disabled = reverseVideoWorking;
+      if (reverseVideoPreviewModeSelect) reverseVideoPreviewModeSelect.disabled = !hasSource || reverseVideoWorking;
+    }
+
+    function revokeReverseVideoObjectUrls(options = {}) {
+      const keepSource = !!options.keepSource;
+      const keepOutput = !!options.keepOutput;
+      if (!keepSource && reverseVideoSourceUrl) {
+        try { URL.revokeObjectURL(reverseVideoSourceUrl); } catch {}
+        reverseVideoSourceUrl = null;
+      }
+      if (!keepOutput && reverseVideoOutputUrl) {
+        try { URL.revokeObjectURL(reverseVideoOutputUrl); } catch {}
+        reverseVideoOutputUrl = null;
+      }
+    }
+
+    function reverseVideoResetOutput() {
+      if (reverseVideoOutputUrl) {
+        try { URL.revokeObjectURL(reverseVideoOutputUrl); } catch {}
+      }
+      reverseVideoOutputUrl = null;
+      reverseVideoOutputBlob = null;
+      if (reverseVideoPreviewModeSelect && reverseVideoPreviewModeSelect.value === 'output') {
+        reverseVideoPreviewModeSelect.value = 'source';
+      }
+    }
+
+    function reverseVideoRefreshPreview() {
+      if (!reverseVideoPreview) return;
+      let requested = reverseVideoPreviewModeSelect?.value || 'source';
+      let nextUrl = null;
+      let label = 'Preview: original';
+      let activeKind = 'none';
+
+      if (requested === 'output' && reverseVideoOutputUrl) {
+        nextUrl = reverseVideoOutputUrl;
+        label = 'Preview: reversed';
+        activeKind = 'output';
+      } else if (reverseVideoSourceUrl) {
+        nextUrl = reverseVideoSourceUrl;
+        label = 'Preview: original';
+        activeKind = 'source';
+      }
+
+      setReverseVideoPreviewBadge(label);
+
+      if (!nextUrl) {
+        try {
+          reverseVideoPreview.pause();
+          reverseVideoPreview.removeAttribute('src');
+          reverseVideoPreview.load();
+        } catch {}
+        reverseVideoPreviewActive = 'none';
+        setReverseVideoPreviewVisible(false);
+        return;
+      }
+
+      if (reverseVideoPreviewActive !== activeKind || reverseVideoPreview.src !== nextUrl) {
+        try {
+          reverseVideoPreview.pause();
+        } catch {}
+        reverseVideoPreview.src = nextUrl;
+        reverseVideoPreview.load();
+        reverseVideoPreviewActive = activeKind;
+      }
+
+      setReverseVideoPreviewVisible(true);
+    }
+
+    function reverseVideoClearAll(options = {}) {
+      const keepInput = !!options.keepInput;
+      try {
+        if (reverseVideoPreview) {
+          reverseVideoPreview.pause();
+          reverseVideoPreview.removeAttribute('src');
+          reverseVideoPreview.load();
+        }
+        if (reverseVideoSource) {
+          reverseVideoSource.pause();
+          reverseVideoSource.removeAttribute('src');
+          reverseVideoSource.load();
+        }
+      } catch {}
+
+      revokeReverseVideoObjectUrls();
+      reverseVideoOutputBlob = null;
+      reverseVideoSourceFileName = '';
+      reverseVideoSourceFileSize = 0;
+      reverseVideoPreviewActive = 'none';
+      if (!keepInput && reverseVideoInput) reverseVideoInput.value = '';
+      if (reverseVideoPreviewModeSelect) reverseVideoPreviewModeSelect.value = 'source';
+
+      setReverseVideoPreviewVisible(false);
+      setReverseVideoPreviewBadge('Preview: original');
+      setReverseVideoMeta('No video loaded');
+      setReverseVideoStatus('Ready when you are.');
+      setReverseVideoProgress(0, 'Upload a video to get started.');
+      updateReverseVideoButtons();
+    }
+
+    function reverseVideoWaitForEvent(target, eventName, timeoutMs = 8000) {
+      return new Promise((resolve, reject) => {
+        let done = false;
+        let timeoutId = 0;
+
+        const cleanup = () => {
+          if (done) return;
+          done = true;
+          if (timeoutId) clearTimeout(timeoutId);
+          target.removeEventListener(eventName, onEvent);
+          target.removeEventListener('error', onError);
+        };
+
+        const onEvent = () => {
+          cleanup();
+          resolve();
+        };
+
+        const onError = () => {
+          cleanup();
+          reject(new Error(`${eventName} failed`));
+        };
+
+        timeoutId = setTimeout(() => {
+          cleanup();
+          reject(new Error(`${eventName} timed out`));
+        }, timeoutMs);
+
+        target.addEventListener(eventName, onEvent, { once: true });
+        target.addEventListener('error', onError, { once: true });
+      });
+    }
+
+    async function reverseVideoEnsureLoaded(videoEl) {
+      if (!videoEl) throw new Error('Video preview not available');
+      if (videoEl.readyState >= 2 && Number.isFinite(videoEl.duration) && videoEl.duration > 0) return;
+
+      if (!(Number.isFinite(videoEl.duration) && videoEl.duration > 0)) {
+        await reverseVideoWaitForEvent(videoEl, 'loadedmetadata', 10000);
+      }
+      if (videoEl.readyState < 2) {
+        await reverseVideoWaitForEvent(videoEl, 'loadeddata', 10000);
+      }
+    }
+
+    async function reverseVideoSeek(videoEl, timeSeconds) {
+      const duration = Number(videoEl.duration) || 0;
+      const epsilon = duration > 0 ? Math.min(0.001, duration / 1000) : 0;
+      const target = reverseVideoClamp(Number(timeSeconds) || 0, 0, Math.max(0, duration - epsilon));
+      const current = Number(videoEl.currentTime) || 0;
+      if (Math.abs(current - target) < 0.0005) return;
+      const wait = reverseVideoWaitForEvent(videoEl, 'seeked', 10000);
+      videoEl.currentTime = target;
+      await wait;
+    }
+
+    function getReverseVideoTargetSize(srcW, srcH) {
+      const mode = reverseVideoMaxSizeSelect?.value || '720';
+      let maxEdge = 0;
+      if (mode !== 'same') {
+        const parsed = parseInt(mode, 10);
+        if (Number.isFinite(parsed) && parsed > 0) maxEdge = parsed;
+      }
+
+      let outW = Math.max(2, Math.round(srcW || 2));
+      let outH = Math.max(2, Math.round(srcH || 2));
+      if (maxEdge > 0) {
+        const scale = Math.min(1, maxEdge / Math.max(outW, outH));
+        outW = Math.max(2, Math.round(outW * scale));
+        outH = Math.max(2, Math.round(outH * scale));
+      }
+
+      if (outW % 2 !== 0) outW = Math.max(2, outW - 1);
+      if (outH % 2 !== 0) outH = Math.max(2, outH - 1);
+      return { width: outW, height: outH };
+    }
+
+    function reverseVideoPickWebMMime() {
+      const candidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+      return candidates.find(type => {
+        try {
+          return typeof MediaRecorder.isTypeSupported !== 'function' || MediaRecorder.isTypeSupported(type);
+        } catch {
+          return false;
+        }
+      }) || '';
+    }
+
+    function reverseVideoDownloadBlob(blob, fileName) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function handleReverseVideoUpload() {
+      const file = reverseVideoInput?.files?.[0];
+      if (!file) {
+        reverseVideoClearAll({ keepInput: true });
+        return;
+      }
+
+      reverseVideoClearAll({ keepInput: true });
+      reverseVideoSourceFileName = file.name || 'video';
+      reverseVideoSourceFileSize = Number(file.size) || 0;
+      reverseVideoSourceUrl = URL.createObjectURL(file);
+      if (reverseVideoPreviewModeSelect) reverseVideoPreviewModeSelect.value = 'source';
+
+      setReverseVideoStatus('Loading video preview...');
+      setReverseVideoProgress(0, 'Loading video...');
+      updateReverseVideoButtons();
+
+      if (!reverseVideoSource || !reverseVideoPreview) {
+        setReverseVideoStatus('Video preview is not available in this browser.');
+        return;
+      }
+
+      reverseVideoSource.src = reverseVideoSourceUrl;
+      reverseVideoSource.load();
+
+      reverseVideoPreview.src = reverseVideoSourceUrl;
+      reverseVideoPreview.load();
+      reverseVideoPreview.muted = true;
+      reverseVideoPreview.loop = true;
+
+      try {
+        await reverseVideoEnsureLoaded(reverseVideoSource);
+        const w = reverseVideoSource.videoWidth || 0;
+        const h = reverseVideoSource.videoHeight || 0;
+        const d = Number(reverseVideoSource.duration) || 0;
+        const parts = [];
+        if (reverseVideoSourceFileName) parts.push(reverseVideoSourceFileName);
+        if (w && h) parts.push(`${w}x${h}`);
+        if (d) parts.push(reverseVideoFormatClock(d));
+        if (reverseVideoSourceFileSize) parts.push(reverseVideoFormatBytes(reverseVideoSourceFileSize));
+        setReverseVideoMeta(parts.join(' | ') || 'Video loaded');
+        setReverseVideoStatus('Video loaded. Choose your options, then click Reverse video.');
+        setReverseVideoProgress(0, 'Video loaded. Click "Reverse video".');
+        reverseVideoRefreshPreview();
+      } catch {
+        setReverseVideoStatus('Could not load that video. Try a different file.');
+        setReverseVideoMeta('Could not read video');
+        revokeReverseVideoObjectUrls({ keepOutput: true });
+        try {
+          reverseVideoPreview.removeAttribute('src');
+          reverseVideoPreview.load();
+          reverseVideoSource.removeAttribute('src');
+          reverseVideoSource.load();
+        } catch {}
+        reverseVideoSourceUrl = null;
+        setReverseVideoPreviewVisible(false);
+      } finally {
+        updateReverseVideoButtons();
+      }
+    }
+
+    async function reverseVideoProcess() {
+      if (reverseVideoWorking) return;
+      if (!reverseVideoSourceUrl || !reverseVideoSource) {
+        alert('Upload a video first.');
+        return;
+      }
+      if (typeof MediaRecorder === 'undefined' || !reverseVideoCanvas || typeof reverseVideoCanvas.captureStream !== 'function') {
+        alert('This browser cannot export reversed video here. Try a Chromium-based browser.');
+        return;
+      }
+
+      reverseVideoWorking = true;
+      updateReverseVideoButtons();
+      reverseVideoResetOutput();
+      reverseVideoRefreshPreview();
+
+      let frames = [];
+      let stream = null;
+      let recorder = null;
+      let recorderError = null;
+
+      try {
+        await reverseVideoEnsureLoaded(reverseVideoSource);
+
+        const duration = Number(reverseVideoSource.duration) || 0;
+        const srcW = reverseVideoSource.videoWidth || 0;
+        const srcH = reverseVideoSource.videoHeight || 0;
+        if (!duration || !srcW || !srcH) {
+          throw new Error('Video details are not available yet');
+        }
+
+        const lengthMode = reverseVideoLengthSelect?.value || '10';
+        const selectedSeconds = lengthMode === 'full' ? duration : Math.max(1, parseInt(lengthMode, 10) || 10);
+        const clipSeconds = Math.min(duration, selectedSeconds);
+        const fps = reverseVideoClamp(parseInt(reverseVideoFpsSelect?.value || '30', 10) || 30, 12, 60);
+        const frameCount = Math.max(1, Math.ceil(clipSeconds * fps));
+        const maxFrames = 900;
+
+        if (frameCount > maxFrames) {
+          alert('That setting would create a very large browser job. Choose a shorter length or lower smoothness and try again.');
+          setReverseVideoStatus('Choose a shorter length or lower smoothness, then try again.');
+          setReverseVideoProgress(0, 'Waiting for new settings.');
+          return;
+        }
+
+        const target = getReverseVideoTargetSize(srcW, srcH);
+        reverseVideoCanvas.width = target.width;
+        reverseVideoCanvas.height = target.height;
+        const ctx = reverseVideoCanvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) throw new Error('Canvas is not available');
+
+        try {
+          reverseVideoPreview.pause();
+        } catch {}
+
+        setReverseVideoStatus(`Reading ${frameCount} frames from the video...`);
+        setReverseVideoProgress(1, `Reading video (${frameCount} frames)...`);
+
+        await reverseVideoSeek(reverseVideoSource, 0);
+        const seekPadding = clipSeconds > 0 ? Math.min(0.001, clipSeconds / 1000) : 0.001;
+
+        for (let i = 0; i < frameCount; i++) {
+          const rawTime = i / fps;
+          const safeTime = Math.min(Math.max(0, clipSeconds - seekPadding), rawTime);
+          await reverseVideoSeek(reverseVideoSource, safeTime);
+          ctx.clearRect(0, 0, target.width, target.height);
+          ctx.drawImage(reverseVideoSource, 0, 0, target.width, target.height);
+
+          if (typeof createImageBitmap === 'function') {
+            try {
+              const bitmap = await createImageBitmap(reverseVideoCanvas);
+              frames.push({ kind: 'bitmap', value: bitmap });
+            } catch {
+              frames.push({ kind: 'imageData', value: ctx.getImageData(0, 0, target.width, target.height) });
+            }
+          } else {
+            frames.push({ kind: 'imageData', value: ctx.getImageData(0, 0, target.width, target.height) });
+          }
+
+          const pct = 5 + Math.round(((i + 1) / frameCount) * 45);
+          setReverseVideoProgress(pct, `Reading video: ${i + 1} of ${frameCount} frames`);
+        }
+
+        const mimeType = reverseVideoPickWebMMime();
+        stream = reverseVideoCanvas.captureStream(fps);
+        recorder = mimeType
+          ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8_000_000 })
+          : new MediaRecorder(stream, { videoBitsPerSecond: 8_000_000 });
+
+        const chunks = [];
+        const recorderDone = new Promise(resolve => {
+          recorder.ondataavailable = (event) => {
+            if (event.data && event.data.size > 0) chunks.push(event.data);
+          };
+          recorder.onerror = (event) => {
+            recorderError = event.error || new Error('Recorder failed');
+          };
+          recorder.onstop = resolve;
+        });
+
+        setReverseVideoStatus('Building your reversed video...');
+        setReverseVideoProgress(50, `Building reversed video: 0 of ${frameCount} frames`);
+
+        recorder.start(500);
+        const frameDelay = Math.max(8, Math.round(1000 / fps));
+
+        for (let outIndex = 0; outIndex < frameCount; outIndex++) {
+          const frame = frames[frameCount - 1 - outIndex];
+          if (!frame) continue;
+
+          if (frame.kind === 'bitmap') {
+            ctx.clearRect(0, 0, target.width, target.height);
+            ctx.drawImage(frame.value, 0, 0, target.width, target.height);
+            if (typeof frame.value.close === 'function') frame.value.close();
+          } else {
+            ctx.putImageData(frame.value, 0, 0);
+          }
+
+          const pct = 50 + Math.round(((outIndex + 1) / frameCount) * 50);
+          setReverseVideoProgress(pct, `Building reversed video: ${outIndex + 1} of ${frameCount} frames`);
+          await reverseVideoSleep(frameDelay);
+        }
+
+        frames = [];
+        await reverseVideoSleep(180);
+        if (recorder.state !== 'inactive') recorder.stop();
+        await recorderDone;
+
+        if (recorderError) throw recorderError;
+        const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
+        if (!blob.size) throw new Error('Empty output video');
+
+        reverseVideoOutputBlob = blob;
+        reverseVideoOutputUrl = URL.createObjectURL(blob);
+        if (reverseVideoPreviewModeSelect) reverseVideoPreviewModeSelect.value = 'output';
+        reverseVideoRefreshPreview();
+
+        const clipInfo = `${reverseVideoFormatClock(clipSeconds)} at ${fps} fps`;
+        setReverseVideoStatus(`Done. Your reversed video is ready to preview and download (${clipInfo}).`);
+        setReverseVideoProgress(100, 'Done. Reversed video is ready.');
+      } catch (err) {
+        if (frames.length) {
+          frames.forEach(frame => {
+            if (frame && frame.kind === 'bitmap' && frame.value && typeof frame.value.close === 'function') {
+              try { frame.value.close(); } catch {}
+            }
+          });
+        }
+        setReverseVideoStatus('Could not reverse this video with the current settings. Try a shorter length or smaller size.');
+        setReverseVideoProgress(0, 'Reverse video failed. Try again with easier settings.');
+        alert('Reverse video failed in this browser. Try a shorter clip, lower smoothness, or smaller size.');
+      } finally {
+        reverseVideoWorking = false;
+        if (stream) {
+          try { stream.getTracks().forEach(track => track.stop()); } catch {}
+        }
+        updateReverseVideoButtons();
+      }
+    }
+
+    function reverseVideoDownloadResult() {
+      if (!reverseVideoOutputBlob) {
+        alert('No reversed video yet. Click "Reverse video" first.');
+        return;
+      }
+      const baseName = (reverseVideoSourceFileName || 'creatorforge-video').replace(/\.[^.]+$/, '');
+      reverseVideoDownloadBlob(reverseVideoOutputBlob, `${baseName}_reversed.webm`);
+    }
+
+    function initReverseVideoTool() {
+      if (reverseVideoToolInitialized) return;
+      reverseVideoToolInitialized = true;
+
+      reverseVideoInput?.addEventListener('change', handleReverseVideoUpload);
+      reverseVideoPreviewModeSelect?.addEventListener('change', () => {
+        reverseVideoRefreshPreview();
+        if ((reverseVideoPreviewModeSelect?.value || 'source') === 'output' && !reverseVideoOutputBlob) {
+          setReverseVideoStatus('No reversed video yet. Click "Reverse video" to make one.');
+        }
+      });
+      reverseVideoStartBtn?.addEventListener('click', reverseVideoProcess);
+      reverseVideoDownloadBtn?.addEventListener('click', reverseVideoDownloadResult);
+      reverseVideoResetBtn?.addEventListener('click', () => reverseVideoClearAll());
+
+      reverseVideoClearAll({ keepInput: true });
     }
 
     /* ---------- Photo & Video Collage Maker ---------- */
@@ -4145,6 +4840,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderPlanner();
+      initReverseVideoTool();
       initCollageTool();
     });
   </script>
