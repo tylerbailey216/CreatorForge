@@ -944,6 +944,136 @@
       gap: 6px;
     }
 
+    .speed-video-timeline-editor {
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(4, 7, 13, 0.95);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .speed-video-timeline-scale {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .speed-video-timeline-visual {
+      position: relative;
+      height: 24px;
+      border-radius: 999px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)),
+        rgba(8, 12, 20, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+    }
+
+    .speed-video-timeline-progress {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(160, 240, 255, 0.28), rgba(160, 240, 255, 0.08));
+      pointer-events: none;
+    }
+
+    .speed-video-timeline-draft {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 0%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255, 213, 155, 0.72), rgba(234, 139, 250, 0.72));
+      box-shadow: 0 0 14px rgba(234, 139, 250, 0.28);
+      pointer-events: none;
+    }
+
+    .speed-video-timeline-markers,
+    .speed-video-timeline-spans {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .speed-video-timeline-span {
+      position: absolute;
+      top: 7px;
+      bottom: 7px;
+      border-radius: 999px;
+      background: rgba(160, 240, 255, 0.28);
+      border: 1px solid rgba(160, 240, 255, 0.3);
+    }
+
+    .speed-video-timeline-span[data-speed-kind="slow"] {
+      background: rgba(255, 213, 155, 0.3);
+      border-color: rgba(255, 213, 155, 0.38);
+    }
+
+    .speed-video-timeline-span[data-speed-kind="fast"] {
+      background: rgba(134, 255, 208, 0.26);
+      border-color: rgba(134, 255, 208, 0.34);
+    }
+
+    .speed-video-timeline-dot {
+      position: absolute;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      background: #f8f9ff;
+      box-shadow: 0 0 0 2px rgba(5, 7, 11, 0.95), 0 0 10px rgba(160, 240, 255, 0.45);
+    }
+
+    .speed-video-timeline-dot[data-dot-kind="start"] {
+      background: #ffd59b;
+    }
+
+    .speed-video-timeline-dot[data-dot-kind="end"] {
+      background: #ea8bfa;
+    }
+
+    .speed-video-timeline-dot[data-dot-kind="playhead"] {
+      width: 12px;
+      height: 12px;
+      background: #a0f0ff;
+      box-shadow: 0 0 0 2px rgba(5, 7, 11, 0.95), 0 0 14px rgba(160, 240, 255, 0.62);
+      z-index: 2;
+    }
+
+    .speed-video-timeline-slider-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .speed-video-timeline-slider-row label {
+      margin: 0;
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+
+    .speed-video-timeline-slider-row input[type="range"] {
+      width: 100%;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .speed-video-timeline-slider-row span {
+      min-width: 62px;
+      text-align: right;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
     .collage-canvas {
       touch-action: none;
       cursor: grab;
@@ -2312,6 +2442,36 @@
                 Upload a video, mark the sections you want to change, and preview the pacing here.
               </div>
               <video id="speedVideoPreview" class="tool-live-preview-video" controls playsinline muted loop style="display:none;"></video>
+            </div>
+            <div class="speed-video-timeline-editor">
+              <div class="speed-video-timeline-scale">
+                <span>Visual timing guide</span>
+                <span id="speedVideoTimelineDuration">0:00.0</span>
+              </div>
+              <div class="speed-video-timeline-visual" id="speedVideoTimelineVisual">
+                <div class="speed-video-timeline-progress" id="speedVideoTimelineProgress"></div>
+                <div class="speed-video-timeline-draft" id="speedVideoTimelineDraft"></div>
+                <div class="speed-video-timeline-spans" id="speedVideoTimelineSpans"></div>
+                <div class="speed-video-timeline-markers" id="speedVideoTimelineMarkers"></div>
+              </div>
+              <div class="speed-video-timeline-slider-row">
+                <label for="speedVideoSeekSlider">Playhead</label>
+                <input type="range" id="speedVideoSeekSlider" min="0" max="1000" value="0" />
+                <span id="speedVideoSeekValue">0:00.0</span>
+              </div>
+              <div class="speed-video-timeline-slider-row">
+                <label for="speedVideoDraftStartSlider">Start dot</label>
+                <input type="range" id="speedVideoDraftStartSlider" min="0" max="1000" value="0" />
+                <span id="speedVideoDraftStartValue">0:00.0</span>
+              </div>
+              <div class="speed-video-timeline-slider-row">
+                <label for="speedVideoDraftEndSlider">End dot</label>
+                <input type="range" id="speedVideoDraftEndSlider" min="0" max="1000" value="100" />
+                <span id="speedVideoDraftEndValue">0:03.0</span>
+              </div>
+              <div class="tool-live-preview-note">
+                Blue dot = playhead. Gold dot = section start. Pink dot = section end. Colored bars show saved speed-change sections.
+              </div>
             </div>
             <div class="tiny tool-live-preview-status" id="speedVideoStatus">
               Ready when you are.
@@ -4154,6 +4314,18 @@
     const speedVideoStatus = document.getElementById('speedVideoStatus');
     const speedVideoPreview = document.getElementById('speedVideoPreview');
     const speedVideoPreviewEmpty = document.getElementById('speedVideoPreviewEmpty');
+    const speedVideoTimelineVisual = document.getElementById('speedVideoTimelineVisual');
+    const speedVideoTimelineDuration = document.getElementById('speedVideoTimelineDuration');
+    const speedVideoTimelineProgress = document.getElementById('speedVideoTimelineProgress');
+    const speedVideoTimelineDraft = document.getElementById('speedVideoTimelineDraft');
+    const speedVideoTimelineSpans = document.getElementById('speedVideoTimelineSpans');
+    const speedVideoTimelineMarkers = document.getElementById('speedVideoTimelineMarkers');
+    const speedVideoSeekSlider = document.getElementById('speedVideoSeekSlider');
+    const speedVideoSeekValue = document.getElementById('speedVideoSeekValue');
+    const speedVideoDraftStartSlider = document.getElementById('speedVideoDraftStartSlider');
+    const speedVideoDraftStartValue = document.getElementById('speedVideoDraftStartValue');
+    const speedVideoDraftEndSlider = document.getElementById('speedVideoDraftEndSlider');
+    const speedVideoDraftEndValue = document.getElementById('speedVideoDraftEndValue');
     const speedVideoSource = document.getElementById('speedVideoSource');
     const speedVideoCanvas = document.getElementById('speedVideoCanvas');
 
@@ -4208,6 +4380,24 @@
       }).join('');
     }
 
+    function speedVideoPercentFromTime(time, duration) {
+      if (!duration) return 0;
+      return reverseVideoClamp((Number(time) || 0) / duration, 0, 1) * 100;
+    }
+
+    function speedVideoSliderToTime(sliderValue, duration) {
+      const safeDuration = Math.max(0, Number(duration) || 0);
+      const safeSlider = reverseVideoClamp(Number(sliderValue) || 0, 0, 1000);
+      if (!safeDuration) return 0;
+      return (safeSlider / 1000) * safeDuration;
+    }
+
+    function speedVideoTimeToSliderValue(time, duration) {
+      const safeDuration = Math.max(0, Number(duration) || 0);
+      if (!safeDuration) return 0;
+      return Math.round(reverseVideoClamp((Number(time) || 0) / safeDuration, 0, 1) * 1000);
+    }
+
     function speedVideoRevokeObjectUrls(options = {}) {
       const keepSource = !!options.keepSource;
       const keepOutput = !!options.keepOutput;
@@ -4253,6 +4443,138 @@
       if (speedVideoStartBtn) speedVideoStartBtn.disabled = !hasSource || speedVideoWorking;
       if (speedVideoDownloadBtn) speedVideoDownloadBtn.disabled = !hasOutput || speedVideoWorking;
       if (speedVideoResetBtn) speedVideoResetBtn.disabled = speedVideoWorking || (!hasSource && !hasOutput && !hasSegments);
+    }
+
+    function speedVideoSyncDraftInputsFromSliders(activeControl) {
+      const duration = speedVideoGetDuration();
+      if (!duration) {
+        if (speedVideoDraftStart) speedVideoDraftStart.value = '0';
+        if (speedVideoDraftEnd) speedVideoDraftEnd.value = '0';
+        return;
+      }
+
+      let start = speedVideoSliderToTime(speedVideoDraftStartSlider?.value, duration);
+      let end = speedVideoSliderToTime(speedVideoDraftEndSlider?.value, duration);
+      const minGap = Math.min(duration, 0.1);
+
+      if (end <= start) {
+        if (activeControl === 'start') {
+          end = Math.min(duration, start + minGap);
+        } else {
+          start = Math.max(0, end - minGap);
+        }
+      }
+
+      if (speedVideoDraftStart) speedVideoDraftStart.value = start.toFixed(1);
+      if (speedVideoDraftEnd) speedVideoDraftEnd.value = end.toFixed(1);
+      if (speedVideoDraftStartSlider) speedVideoDraftStartSlider.value = String(speedVideoTimeToSliderValue(start, duration));
+      if (speedVideoDraftEndSlider) speedVideoDraftEndSlider.value = String(speedVideoTimeToSliderValue(end, duration));
+    }
+
+    function speedVideoSyncDraftSlidersFromInputs(activeControl) {
+      const duration = speedVideoGetDuration();
+      let start = Math.max(0, Number(speedVideoDraftStart?.value) || 0);
+      let end = Math.max(0, Number(speedVideoDraftEnd?.value) || 0);
+
+      if (duration) {
+        start = Math.min(start, duration);
+        end = Math.min(end, duration);
+      }
+
+      const minGap = duration ? Math.min(duration, 0.1) : 0.1;
+      if (end <= start) {
+        if (activeControl === 'start') {
+          end = duration ? Math.min(duration, start + minGap) : start + minGap;
+        } else {
+          start = Math.max(0, end - minGap);
+        }
+      }
+
+      if (speedVideoDraftStart) speedVideoDraftStart.value = start.toFixed(1);
+      if (speedVideoDraftEnd) speedVideoDraftEnd.value = end.toFixed(1);
+      if (duration) {
+        if (speedVideoDraftStartSlider) speedVideoDraftStartSlider.value = String(speedVideoTimeToSliderValue(start, duration));
+        if (speedVideoDraftEndSlider) speedVideoDraftEndSlider.value = String(speedVideoTimeToSliderValue(end, duration));
+      } else {
+        if (speedVideoDraftStartSlider) speedVideoDraftStartSlider.value = '0';
+        if (speedVideoDraftEndSlider) speedVideoDraftEndSlider.value = '0';
+      }
+    }
+
+    function speedVideoRefreshTimeline() {
+      const duration = speedVideoGetDuration();
+      const playheadTime = speedVideoGetTimelinePlayheadTime();
+      const start = Math.max(0, Number(speedVideoDraftStart?.value) || 0);
+      const end = Math.max(start, Number(speedVideoDraftEnd?.value) || start);
+
+      if (speedVideoTimelineDuration) {
+        speedVideoTimelineDuration.textContent = duration ? reverseVideoFormatClock(duration) : '0:00.0';
+      }
+      if (speedVideoSeekValue) {
+        speedVideoSeekValue.textContent = reverseVideoFormatClock(playheadTime);
+      }
+      if (speedVideoDraftStartValue) {
+        speedVideoDraftStartValue.textContent = reverseVideoFormatClock(start);
+      }
+      if (speedVideoDraftEndValue) {
+        speedVideoDraftEndValue.textContent = reverseVideoFormatClock(end);
+      }
+
+      if (speedVideoSeekSlider) {
+        speedVideoSeekSlider.value = String(duration ? speedVideoTimeToSliderValue(playheadTime, duration) : 0);
+        speedVideoSeekSlider.disabled = !speedVideoSourceUrl || speedVideoWorking;
+      }
+      if (speedVideoDraftStartSlider) {
+        speedVideoDraftStartSlider.disabled = !speedVideoSourceUrl || speedVideoWorking;
+      }
+      if (speedVideoDraftEndSlider) {
+        speedVideoDraftEndSlider.disabled = !speedVideoSourceUrl || speedVideoWorking;
+      }
+
+      if (speedVideoTimelineProgress) {
+        speedVideoTimelineProgress.style.width = `${speedVideoPercentFromTime(playheadTime, duration)}%`;
+      }
+
+      if (speedVideoTimelineDraft) {
+        const draftLeft = speedVideoPercentFromTime(start, duration);
+        const draftRight = speedVideoPercentFromTime(end, duration);
+        speedVideoTimelineDraft.style.left = `${draftLeft}%`;
+        speedVideoTimelineDraft.style.width = `${Math.max(0, draftRight - draftLeft)}%`;
+      }
+
+      if (speedVideoTimelineSpans) {
+        speedVideoTimelineSpans.innerHTML = duration
+          ? speedVideoSegments.map(segment => {
+              const segmentStart = Math.max(0, Number(segment.start) || 0);
+              const segmentEnd = Math.max(segmentStart, Number(segment.end) || segmentStart);
+              const speed = speedVideoNormalizeRate(segment.speed);
+              const left = speedVideoPercentFromTime(segmentStart, duration);
+              const right = speedVideoPercentFromTime(segmentEnd, duration);
+              const speedKind = speed < 1 ? 'slow' : speed > 1 ? 'fast' : 'normal';
+              return `<div class="speed-video-timeline-span" data-speed-kind="${speedKind}" style="left:${left}%; width:${Math.max(0, right - left)}%;"></div>`;
+            }).join('')
+          : '';
+      }
+
+      if (speedVideoTimelineMarkers) {
+        const markers = [];
+        if (duration) {
+          speedVideoSegments.forEach(segment => {
+            const segmentStart = Math.max(0, Number(segment.start) || 0);
+            const segmentEnd = Math.max(segmentStart, Number(segment.end) || segmentStart);
+            markers.push(
+              `<div class="speed-video-timeline-dot" data-dot-kind="start" style="left:${speedVideoPercentFromTime(segmentStart, duration)}%;"></div>`
+            );
+            markers.push(
+              `<div class="speed-video-timeline-dot" data-dot-kind="end" style="left:${speedVideoPercentFromTime(segmentEnd, duration)}%;"></div>`
+            );
+          });
+          markers.push(
+            `<div class="speed-video-timeline-dot" data-dot-kind="playhead" style="left:${speedVideoPercentFromTime(playheadTime, duration)}%;"></div>`
+          );
+        }
+        speedVideoTimelineMarkers.innerHTML = markers.join('');
+      }
     }
 
     function speedVideoGetTargetSize(srcW, srcH) {
@@ -4357,6 +4679,40 @@
       return safeTimeline.baseSpeed;
     }
 
+    function speedVideoGetTimelinePlayheadTime() {
+      const previewTime = Number(speedVideoPreview?.currentTime) || 0;
+      if (speedVideoPreviewActive !== 'output') return previewTime;
+
+      const timeline = speedVideoBuildTimeline(speedVideoGetDuration());
+      if (!timeline.ok) return previewTime;
+
+      for (const span of timeline.spans) {
+        if (previewTime >= span.outputStart && previewTime < span.outputEnd) {
+          return span.sourceStart + (previewTime - span.outputStart) * span.speed;
+        }
+      }
+
+      return previewTime >= timeline.outputDuration ? timeline.duration : previewTime;
+    }
+
+    async function speedVideoSeekPreviewTo(timeSeconds) {
+      const videoEl = speedVideoPreview;
+      if (!videoEl || !speedVideoSourceUrl) return;
+
+      if (speedVideoPreviewActive !== 'source' && speedVideoPreviewModeSelect) {
+        speedVideoPreviewModeSelect.value = 'source';
+        speedVideoRefreshPreview();
+      }
+
+      try {
+        await reverseVideoEnsureLoaded(videoEl);
+        await reverseVideoSeek(videoEl, timeSeconds);
+      } catch {}
+
+      speedVideoUpdatePreviewRate(true);
+      speedVideoRefreshTimeline();
+    }
+
     function speedVideoUpdatePlayheadBadge() {
       if (!speedVideoPlayheadBadge) return;
       const duration = Number(speedVideoPreview?.duration) || speedVideoGetDuration();
@@ -4365,6 +4721,7 @@
         ? `Playhead: ${reverseVideoFormatClock(current)} / ${reverseVideoFormatClock(duration)}`
         : `Playhead: ${reverseVideoFormatClock(current)}`;
       speedVideoPlayheadBadge.textContent = label;
+      speedVideoRefreshTimeline();
     }
 
     function speedVideoUpdatePreviewRate(force) {
@@ -4449,6 +4806,7 @@
         } catch {}
       }
       speedVideoUpdatePreviewRate(true);
+      speedVideoRefreshTimeline();
     }
 
     function speedVideoRefreshSummary() {
@@ -4465,6 +4823,7 @@
           '</div>',
           '<div class="tiny">Upload or finish loading a video to validate timing and estimate the edited length.</div>',
         ].join('');
+        speedVideoRefreshTimeline();
         return;
       }
 
@@ -4477,6 +4836,7 @@
           '</div>',
           `<div>${timeline.message}</div>`,
         ].join('');
+        speedVideoRefreshTimeline();
         return;
       }
 
@@ -4496,6 +4856,7 @@
       }
 
       speedVideoSummary.innerHTML = rows.join('');
+      speedVideoRefreshTimeline();
     }
 
     function speedVideoRenderSegments() {
@@ -4506,6 +4867,7 @@
         speedVideoRefreshSummary();
         speedVideoUpdateButtons();
         speedVideoUpdatePreviewRate(true);
+        speedVideoRefreshTimeline();
         return;
       }
 
@@ -4579,6 +4941,7 @@
       speedVideoRefreshSummary();
       speedVideoUpdateButtons();
       speedVideoUpdatePreviewRate(true);
+      speedVideoRefreshTimeline();
     }
 
     function speedVideoClearAll(options = {}) {
@@ -4618,6 +4981,7 @@
       if (speedVideoDraftStart) speedVideoDraftStart.value = '0';
       if (speedVideoDraftEnd) speedVideoDraftEnd.value = '3';
       if (speedVideoDraftSpeed) speedVideoDraftSpeed.value = '1';
+      speedVideoSyncDraftSlidersFromInputs('end');
 
       speedVideoSetPreviewVisible(false);
       speedVideoSetPreviewBadge('Preview: original pacing');
@@ -4629,6 +4993,7 @@
       speedVideoSetProgress(0, 'Upload a video to get started.');
       speedVideoRenderSegments();
       speedVideoUpdateButtons();
+      speedVideoRefreshTimeline();
     }
 
     async function speedVideoHandleUpload() {
@@ -4677,6 +5042,7 @@
         if (speedVideoDraftEnd) {
           speedVideoDraftEnd.value = duration ? Math.min(duration, 3).toFixed(1) : '3';
         }
+        speedVideoSyncDraftSlidersFromInputs('end');
         speedVideoSetStatus('Video loaded. Mark the sections you want to change, then create the edited video.');
         speedVideoSetProgress(0, 'Video loaded. Add sections or export at normal speed.');
         speedVideoRefreshPreview();
@@ -4699,13 +5065,13 @@
     }
 
     function speedVideoUsePlayhead(target) {
-      if (!speedVideoSourceUrl || !speedVideoPreview || speedVideoPreviewActive !== 'source') {
-        speedVideoSetStatus('Switch the preview back to the original video before using the playhead buttons.');
+      if (!speedVideoSourceUrl || !speedVideoPreview) {
+        speedVideoSetStatus('Upload a video first so the timeline controls have something to work with.');
         return;
       }
 
-      const duration = Number(speedVideoPreview.duration) || speedVideoGetDuration();
-      const currentTime = reverseVideoClamp(Number(speedVideoPreview.currentTime) || 0, 0, duration || Number.MAX_SAFE_INTEGER);
+      const duration = speedVideoGetDuration();
+      const currentTime = reverseVideoClamp(speedVideoGetTimelinePlayheadTime(), 0, duration || Number.MAX_SAFE_INTEGER);
 
       if (target === 'start' && speedVideoDraftStart) {
         speedVideoDraftStart.value = currentTime.toFixed(1);
@@ -4724,6 +5090,8 @@
         }
       }
 
+      speedVideoSyncDraftSlidersFromInputs(target);
+      speedVideoRefreshTimeline();
       speedVideoSetStatus(`Marked ${target === 'start' ? 'section start' : 'section end'} at ${reverseVideoFormatClock(currentTime)}.`);
     }
 
@@ -4779,6 +5147,7 @@
         const nextEnd = duration ? Math.min(duration, clipped.end + 1) : clipped.end + 1;
         speedVideoDraftEnd.value = nextEnd.toFixed(1);
       }
+      speedVideoSyncDraftSlidersFromInputs('end');
     }
 
     function speedVideoApplyWholeVideo() {
@@ -5063,6 +5432,34 @@
       speedVideoMarkEndBtn?.addEventListener('click', () => speedVideoUsePlayhead('end'));
       speedVideoAddSegmentBtn?.addEventListener('click', speedVideoAddSegment);
       speedVideoWholeVideoBtn?.addEventListener('click', speedVideoApplyWholeVideo);
+      speedVideoDraftStart?.addEventListener('input', () => {
+        speedVideoSyncDraftSlidersFromInputs('start');
+        speedVideoRefreshTimeline();
+      });
+      speedVideoDraftEnd?.addEventListener('input', () => {
+        speedVideoSyncDraftSlidersFromInputs('end');
+        speedVideoRefreshTimeline();
+      });
+      speedVideoDraftStartSlider?.addEventListener('input', () => {
+        speedVideoSyncDraftInputsFromSliders('start');
+        speedVideoRefreshTimeline();
+      });
+      speedVideoDraftEndSlider?.addEventListener('input', () => {
+        speedVideoSyncDraftInputsFromSliders('end');
+        speedVideoRefreshTimeline();
+      });
+      speedVideoSeekSlider?.addEventListener('input', () => {
+        const duration = speedVideoGetDuration();
+        const nextTime = speedVideoSliderToTime(speedVideoSeekSlider.value, duration);
+        if (speedVideoSeekValue) speedVideoSeekValue.textContent = reverseVideoFormatClock(nextTime);
+        speedVideoSeekPreviewTo(nextTime);
+      });
+      speedVideoTimelineVisual?.addEventListener('click', event => {
+        const bounds = speedVideoTimelineVisual.getBoundingClientRect();
+        if (!bounds.width) return;
+        const ratio = reverseVideoClamp((event.clientX - bounds.left) / bounds.width, 0, 1);
+        speedVideoSeekPreviewTo(ratio * speedVideoGetDuration());
+      });
       speedVideoClearSegmentsBtn?.addEventListener('click', () => {
         speedVideoSegments = [];
         speedVideoResetOutput();
