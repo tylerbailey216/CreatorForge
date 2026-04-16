@@ -854,6 +854,96 @@
       text-align: right;
     }
 
+    .speed-video-compose,
+    .speed-video-summary,
+    .speed-video-segment-item {
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(4, 7, 13, 0.95);
+    }
+
+    .speed-video-compose,
+    .speed-video-summary {
+      padding: 8px;
+    }
+
+    .speed-video-compose {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .speed-video-compose-grid,
+    .speed-video-segment-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .speed-video-compose-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .speed-video-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #d3ddff;
+    }
+
+    .speed-video-summary-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .speed-video-segment-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 320px;
+      overflow: auto;
+    }
+
+    .speed-video-segment-item {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .speed-video-segment-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .speed-video-segment-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+      align-items: end;
+    }
+
+    .speed-video-segment-empty {
+      border-radius: 10px;
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      padding: 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.74rem;
+      background: rgba(8, 12, 20, 0.72);
+    }
+
+    .speed-video-inline-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
     .collage-canvas {
       touch-action: none;
       cursor: grab;
@@ -1057,6 +1147,7 @@
 
     #panel-image,
     #panel-reverse,
+    #panel-speed,
     #panel-watermark,
     #panel-thumbnail {
       grid-column: span 2;
@@ -1068,6 +1159,7 @@
 
     #panel-image > *,
     #panel-reverse > *,
+    #panel-speed > *,
     #panel-watermark > *,
     #panel-thumbnail > * {
       grid-column: 1;
@@ -1075,6 +1167,7 @@
 
     #panel-image > .panel-header,
     #panel-reverse > .panel-header,
+    #panel-speed > .panel-header,
     #panel-watermark > .panel-header,
     #panel-thumbnail > .panel-header {
       grid-column: 1 / -1;
@@ -1083,6 +1176,7 @@
 
     #panel-image > .tool-live-preview-pane,
     #panel-reverse > .tool-live-preview-pane,
+    #panel-speed > .tool-live-preview-pane,
     #panel-watermark > .tool-live-preview-pane,
     #panel-thumbnail > .tool-live-preview-pane {
       grid-column: 2;
@@ -1161,6 +1255,7 @@
     @media (max-width: 1240px) {
       #panel-image,
       #panel-reverse,
+      #panel-speed,
       #panel-watermark,
       #panel-thumbnail,
       #panel-collage {
@@ -1169,6 +1264,7 @@
 
       #panel-image,
       #panel-reverse,
+      #panel-speed,
       #panel-watermark,
       #panel-thumbnail,
       #panel-collage,
@@ -1178,6 +1274,7 @@
 
       #panel-image > *,
       #panel-reverse > *,
+      #panel-speed > *,
       #panel-watermark > *,
       #panel-thumbnail > *,
       #panel-collage > *,
@@ -1187,6 +1284,7 @@
 
       #panel-image > .tool-live-preview-pane,
       #panel-reverse > .tool-live-preview-pane,
+      #panel-speed > .tool-live-preview-pane,
       #panel-watermark > .tool-live-preview-pane,
       #panel-thumbnail > .tool-live-preview-pane {
         grid-row: auto;
@@ -1207,6 +1305,13 @@
 
       #panel-bgremove #bgremoverVideoControlsWrap > .bgremover-slider-row:first-child {
         grid-column: 1 !important;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .speed-video-compose-grid,
+      .speed-video-segment-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -1462,6 +1567,22 @@
             <div class="tool-meta">Upload • reverse • download</div>
             <button class="btn-small" type="button" onclick="event.stopPropagation(); openPanel('reverse');">
               Open tool ↗
+            </button>
+          </div>
+        </article>
+
+        <article class="tool-card" onclick="openPanel('speed')">
+          <div class="tool-header">
+            <div class="tool-title">Speed Change Video Editor</div>
+            <div class="tool-tag">Video</div>
+          </div>
+          <div class="tool-body">
+            Speed up or slow down the exact parts you choose, then export a fresh edited video right in your browser.
+          </div>
+          <div class="tool-bottom">
+            <div class="tool-meta">Mark sections | change pace | export</div>
+            <button class="btn-small" type="button" onclick="event.stopPropagation(); openPanel('speed');">
+              Open tool
             </button>
           </div>
         </article>
@@ -2040,6 +2161,170 @@
           <canvas id="reverseVideoCanvas" class="bgremover-hidden"></canvas>
         </div>
 
+        <!-- Speed Change Video Editor -->
+        <div class="panel" id="panel-speed">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="emoji">⏩</span> Speed Change Video Editor
+            </div>
+            <div class="panel-header-right">
+              <span class="badge">Live preview</span>
+              <span class="badge">On-device</span>
+              <span class="hint" title="Mark the parts you want to speed up or slow down, preview the pacing, and export a new video locally.">?</span>
+            </div>
+          </div>
+
+          <div>
+            <label for="speedVideoInput">Upload a video</label>
+            <input type="file" id="speedVideoInput" accept="video/*" />
+          </div>
+
+          <div class="bgremover-grid">
+            <div>
+              <label for="speedVideoBaseSpeed">Normal speed for everything else</label>
+              <select id="speedVideoBaseSpeed">
+                <option value="0.25">0.25x (very slow)</option>
+                <option value="0.5">0.5x (slow)</option>
+                <option value="0.75">0.75x (slightly slow)</option>
+                <option value="1" selected>1x (normal)</option>
+                <option value="1.25">1.25x (slightly fast)</option>
+                <option value="1.5">1.5x (fast)</option>
+                <option value="2">2x (very fast)</option>
+                <option value="3">3x (super fast)</option>
+                <option value="4">4x (max fast)</option>
+              </select>
+            </div>
+            <div>
+              <label for="speedVideoPreviewMode">Preview to show</label>
+              <select id="speedVideoPreviewMode">
+                <option value="source" selected>Original video with planned speeds</option>
+                <option value="output">Edited video after export</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="bgremover-grid">
+            <div>
+              <label for="speedVideoMaxSize">Output size</label>
+              <select id="speedVideoMaxSize">
+                <option value="same">Keep original size</option>
+                <option value="1080">1080p max</option>
+                <option value="720" selected>720p max (recommended)</option>
+                <option value="480">480p max (fastest export)</option>
+              </select>
+            </div>
+            <div>
+              <label for="speedVideoFps">Output smoothness</label>
+              <select id="speedVideoFps">
+                <option value="24">24 fps</option>
+                <option value="30" selected>30 fps</option>
+                <option value="60">60 fps</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="tool-live-preview-note">
+            Use the video preview controls to move to the part you want, then drop section start and end times with the playhead buttons below.
+          </div>
+
+          <div class="speed-video-compose">
+            <div class="speed-video-compose-grid">
+              <div>
+                <label for="speedVideoDraftStart">Section start (seconds)</label>
+                <input type="number" id="speedVideoDraftStart" min="0" step="0.1" value="0" />
+              </div>
+              <div>
+                <label for="speedVideoDraftEnd">Section end (seconds)</label>
+                <input type="number" id="speedVideoDraftEnd" min="0" step="0.1" value="3" />
+              </div>
+              <div>
+                <label for="speedVideoDraftSpeed">Speed for this section</label>
+                <select id="speedVideoDraftSpeed">
+                  <option value="0.25">0.25x (very slow)</option>
+                  <option value="0.5">0.5x (slow)</option>
+                  <option value="0.75">0.75x (slightly slow)</option>
+                  <option value="1" selected>1x (normal)</option>
+                  <option value="1.25">1.25x (slightly fast)</option>
+                  <option value="1.5">1.5x (fast)</option>
+                  <option value="2">2x (very fast)</option>
+                  <option value="3">3x (super fast)</option>
+                  <option value="4">4x (max fast)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="speed-video-inline-meta">
+              <span class="badge" id="speedVideoPlayheadBadge">Playhead: 0:00.0</span>
+              <span class="badge" id="speedVideoCurrentRateBadge">Current speed: 1.00x</span>
+            </div>
+
+            <div class="inline-controls">
+              <button class="btn-small" type="button" id="speedVideoMarkStartBtn">Use playhead for start</button>
+              <button class="btn-small" type="button" id="speedVideoMarkEndBtn">Use playhead for end</button>
+              <button class="btn-small" type="button" id="speedVideoAddSegmentBtn">Add section</button>
+              <button class="btn-small" type="button" id="speedVideoWholeVideoBtn">Use this speed for whole video</button>
+            </div>
+
+            <div class="tiny">
+              Tip: Leave unmarked areas alone, or change the normal speed setting if you want the whole video faster or slower by default.
+            </div>
+          </div>
+
+          <div class="speed-video-summary" id="speedVideoSummary">
+            <div>Upload a video to start planning speed changes.</div>
+          </div>
+
+          <ul class="speed-video-segment-list" id="speedVideoSegmentList">
+            <li class="speed-video-segment-empty">No custom speed sections yet.</li>
+          </ul>
+
+          <div class="inline-controls">
+            <button class="btn-small" type="button" id="speedVideoClearSegmentsBtn">Clear speed sections</button>
+            <button class="btn-small" type="button" id="speedVideoStartBtn">Create edited video</button>
+            <button class="btn-small" type="button" id="speedVideoDownloadBtn" disabled>Download edited video</button>
+            <button class="btn-small" type="button" id="speedVideoResetBtn">Clear tool</button>
+          </div>
+
+          <div class="tool-live-preview-note">
+            Longer videos are allowed. Export time depends on video length, output size, and whether you slow sections down.
+          </div>
+
+          <progress class="tool-progress" id="speedVideoProgress" max="100" value="0"></progress>
+          <div class="tiny" id="speedVideoProgressLabel">Upload a video to get started.</div>
+
+          <div class="tool-live-preview-pane">
+            <div class="tool-live-preview-meta">
+              <span class="badge" id="speedVideoPreviewBadge">Preview: original pacing</span>
+              <span class="tiny" id="speedVideoMeta">No video loaded</span>
+              <span class="tiny" id="speedVideoRateMeta">Current preview speed: 1.00x</span>
+            </div>
+            <div class="tool-live-preview-frame-row">
+              <label for="speedVideoPreviewFrameMode">Preview frame</label>
+              <select id="speedVideoPreviewFrameMode">
+                <option value="auto" selected>Auto</option>
+                <option value="portrait">Portrait</option>
+                <option value="landscape">Landscape</option>
+                <option value="square">Square</option>
+              </select>
+            </div>
+            <div class="tool-live-preview-window" id="speedVideoPreviewWindow" data-preview-frame="auto">
+              <div class="tool-live-preview-empty" id="speedVideoPreviewEmpty">
+                Upload a video, mark the sections you want to change, and preview the pacing here.
+              </div>
+              <video id="speedVideoPreview" class="tool-live-preview-video" controls playsinline muted loop style="display:none;"></video>
+            </div>
+            <div class="tiny tool-live-preview-status" id="speedVideoStatus">
+              Ready when you are.
+            </div>
+            <div class="tool-live-preview-note">
+              The original preview updates its playback speed live as your marked sections play. Exported output is WebM and does not include audio.
+            </div>
+          </div>
+
+          <video id="speedVideoSource" class="bgremover-hidden" playsinline muted preload="auto"></video>
+          <canvas id="speedVideoCanvas" class="bgremover-hidden"></canvas>
+        </div>
+
         <!-- Photo & Video Collage Maker -->
         <div class="panel" id="panel-collage">
           <div class="panel-header">
@@ -2369,6 +2654,7 @@
         : kind === 'watermark' ? 'panel-watermark'
         : kind === 'thumbnail' ? 'panel-thumbnail'
         : kind === 'reverse' ? 'panel-reverse'
+        : kind === 'speed' ? 'panel-speed'
         : kind === 'collage' ? 'panel-collage'
         : kind === 'bgremove' ? 'panel-bgremove'
         : null;
@@ -2404,6 +2690,7 @@
     bindPreviewFrameMode('wmPreviewFrameMode', 'wmPreviewWindow');
     bindPreviewFrameMode('thumbPreviewFrameMode', 'thumbPreviewWindow');
     bindPreviewFrameMode('reverseVideoPreviewFrameMode', 'reverseVideoPreviewWindow');
+    bindPreviewFrameMode('speedVideoPreviewFrameMode', 'speedVideoPreviewWindow');
 
     /* ---------- Image Resize & Compress ---------- */
     let loadedImage = null;
@@ -3816,6 +4103,987 @@
       reverseVideoClearAll({ keepInput: true });
     }
 
+    /* ---------- Speed Change Video Editor ---------- */
+    const SPEED_VIDEO_RATE_OPTIONS = [
+      { value: '0.25', label: '0.25x' },
+      { value: '0.5', label: '0.5x' },
+      { value: '0.75', label: '0.75x' },
+      { value: '1', label: '1x' },
+      { value: '1.25', label: '1.25x' },
+      { value: '1.5', label: '1.5x' },
+      { value: '2', label: '2x' },
+      { value: '3', label: '3x' },
+      { value: '4', label: '4x' },
+    ];
+
+    let speedVideoToolInitialized = false;
+    let speedVideoSourceUrl = null;
+    let speedVideoOutputUrl = null;
+    let speedVideoOutputBlob = null;
+    let speedVideoSourceFileName = '';
+    let speedVideoSourceFileSize = 0;
+    let speedVideoWorking = false;
+    let speedVideoPreviewActive = 'none';
+    let speedVideoSegments = [];
+
+    const speedVideoInput = document.getElementById('speedVideoInput');
+    const speedVideoBaseSpeedSelect = document.getElementById('speedVideoBaseSpeed');
+    const speedVideoPreviewModeSelect = document.getElementById('speedVideoPreviewMode');
+    const speedVideoMaxSizeSelect = document.getElementById('speedVideoMaxSize');
+    const speedVideoFpsSelect = document.getElementById('speedVideoFps');
+    const speedVideoDraftStart = document.getElementById('speedVideoDraftStart');
+    const speedVideoDraftEnd = document.getElementById('speedVideoDraftEnd');
+    const speedVideoDraftSpeed = document.getElementById('speedVideoDraftSpeed');
+    const speedVideoPlayheadBadge = document.getElementById('speedVideoPlayheadBadge');
+    const speedVideoCurrentRateBadge = document.getElementById('speedVideoCurrentRateBadge');
+    const speedVideoMarkStartBtn = document.getElementById('speedVideoMarkStartBtn');
+    const speedVideoMarkEndBtn = document.getElementById('speedVideoMarkEndBtn');
+    const speedVideoAddSegmentBtn = document.getElementById('speedVideoAddSegmentBtn');
+    const speedVideoWholeVideoBtn = document.getElementById('speedVideoWholeVideoBtn');
+    const speedVideoClearSegmentsBtn = document.getElementById('speedVideoClearSegmentsBtn');
+    const speedVideoStartBtn = document.getElementById('speedVideoStartBtn');
+    const speedVideoDownloadBtn = document.getElementById('speedVideoDownloadBtn');
+    const speedVideoResetBtn = document.getElementById('speedVideoResetBtn');
+    const speedVideoSummary = document.getElementById('speedVideoSummary');
+    const speedVideoSegmentList = document.getElementById('speedVideoSegmentList');
+    const speedVideoProgress = document.getElementById('speedVideoProgress');
+    const speedVideoProgressLabel = document.getElementById('speedVideoProgressLabel');
+    const speedVideoPreviewBadge = document.getElementById('speedVideoPreviewBadge');
+    const speedVideoMeta = document.getElementById('speedVideoMeta');
+    const speedVideoRateMeta = document.getElementById('speedVideoRateMeta');
+    const speedVideoStatus = document.getElementById('speedVideoStatus');
+    const speedVideoPreview = document.getElementById('speedVideoPreview');
+    const speedVideoPreviewEmpty = document.getElementById('speedVideoPreviewEmpty');
+    const speedVideoSource = document.getElementById('speedVideoSource');
+    const speedVideoCanvas = document.getElementById('speedVideoCanvas');
+
+    function speedVideoNormalizeRate(value) {
+      const parsed = parseFloat(value);
+      return reverseVideoClamp(Number.isFinite(parsed) ? parsed : 1, 0.25, 4);
+    }
+
+    function speedVideoFormatRate(value) {
+      const safe = speedVideoNormalizeRate(value);
+      const rounded = Math.round(safe * 100) / 100;
+      return `${rounded.toFixed(rounded % 1 === 0 ? 0 : rounded % 0.5 === 0 ? 1 : 2)}x`;
+    }
+
+    function speedVideoSetStatus(message) {
+      if (speedVideoStatus) speedVideoStatus.textContent = message || '';
+    }
+
+    function speedVideoSetMeta(message) {
+      if (speedVideoMeta) speedVideoMeta.textContent = message || '';
+    }
+
+    function speedVideoSetRateMeta(message) {
+      if (speedVideoRateMeta) speedVideoRateMeta.textContent = message || '';
+    }
+
+    function speedVideoSetPreviewBadge(message) {
+      if (speedVideoPreviewBadge) speedVideoPreviewBadge.textContent = message || 'Preview';
+    }
+
+    function speedVideoSetProgress(percent, label) {
+      const safe = reverseVideoClamp(Math.round(Number(percent) || 0), 0, 100);
+      if (speedVideoProgress) speedVideoProgress.value = safe;
+      if (speedVideoProgressLabel) speedVideoProgressLabel.textContent = label || `${safe}%`;
+    }
+
+    function speedVideoSetPreviewVisible(show) {
+      if (speedVideoPreview) speedVideoPreview.style.display = show ? 'block' : 'none';
+      if (speedVideoPreviewEmpty) speedVideoPreviewEmpty.style.display = show ? 'none' : 'block';
+    }
+
+    function speedVideoGetDuration() {
+      const duration = Number(speedVideoSource?.duration) || Number(speedVideoPreview?.duration) || 0;
+      return Number.isFinite(duration) && duration > 0 ? duration : 0;
+    }
+
+    function speedVideoBuildRateOptions(selectedValue) {
+      const selected = speedVideoNormalizeRate(selectedValue);
+      return SPEED_VIDEO_RATE_OPTIONS.map(option => {
+        const chosen = Math.abs(speedVideoNormalizeRate(option.value) - selected) < 0.001 ? ' selected' : '';
+        return `<option value="${option.value}"${chosen}>${option.label}</option>`;
+      }).join('');
+    }
+
+    function speedVideoRevokeObjectUrls(options = {}) {
+      const keepSource = !!options.keepSource;
+      const keepOutput = !!options.keepOutput;
+      if (!keepSource && speedVideoSourceUrl) {
+        try { URL.revokeObjectURL(speedVideoSourceUrl); } catch {}
+        speedVideoSourceUrl = null;
+      }
+      if (!keepOutput && speedVideoOutputUrl) {
+        try { URL.revokeObjectURL(speedVideoOutputUrl); } catch {}
+        speedVideoOutputUrl = null;
+      }
+    }
+
+    function speedVideoResetOutput() {
+      if (speedVideoOutputUrl) {
+        try { URL.revokeObjectURL(speedVideoOutputUrl); } catch {}
+      }
+      speedVideoOutputUrl = null;
+      speedVideoOutputBlob = null;
+      if (speedVideoPreviewModeSelect && speedVideoPreviewModeSelect.value === 'output') {
+        speedVideoPreviewModeSelect.value = 'source';
+      }
+    }
+
+    function speedVideoUpdateButtons() {
+      const hasSource = !!speedVideoSourceUrl;
+      const hasOutput = !!speedVideoOutputBlob;
+      const hasSegments = speedVideoSegments.length > 0;
+
+      if (speedVideoInput) speedVideoInput.disabled = speedVideoWorking;
+      if (speedVideoBaseSpeedSelect) speedVideoBaseSpeedSelect.disabled = speedVideoWorking;
+      if (speedVideoPreviewModeSelect) speedVideoPreviewModeSelect.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoMaxSizeSelect) speedVideoMaxSizeSelect.disabled = speedVideoWorking;
+      if (speedVideoFpsSelect) speedVideoFpsSelect.disabled = speedVideoWorking;
+      if (speedVideoDraftStart) speedVideoDraftStart.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoDraftEnd) speedVideoDraftEnd.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoDraftSpeed) speedVideoDraftSpeed.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoMarkStartBtn) speedVideoMarkStartBtn.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoMarkEndBtn) speedVideoMarkEndBtn.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoAddSegmentBtn) speedVideoAddSegmentBtn.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoWholeVideoBtn) speedVideoWholeVideoBtn.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoClearSegmentsBtn) speedVideoClearSegmentsBtn.disabled = !hasSegments || speedVideoWorking;
+      if (speedVideoStartBtn) speedVideoStartBtn.disabled = !hasSource || speedVideoWorking;
+      if (speedVideoDownloadBtn) speedVideoDownloadBtn.disabled = !hasOutput || speedVideoWorking;
+      if (speedVideoResetBtn) speedVideoResetBtn.disabled = speedVideoWorking || (!hasSource && !hasOutput && !hasSegments);
+    }
+
+    function speedVideoGetTargetSize(srcW, srcH) {
+      const mode = speedVideoMaxSizeSelect?.value || '720';
+      let maxEdge = 0;
+      if (mode !== 'same') {
+        const parsed = parseInt(mode, 10);
+        if (Number.isFinite(parsed) && parsed > 0) maxEdge = parsed;
+      }
+
+      let outW = Math.max(2, Math.round(srcW || 2));
+      let outH = Math.max(2, Math.round(srcH || 2));
+      if (maxEdge > 0) {
+        const scale = Math.min(1, maxEdge / Math.max(outW, outH));
+        outW = Math.max(2, Math.round(outW * scale));
+        outH = Math.max(2, Math.round(outH * scale));
+      }
+
+      if (outW % 2 !== 0) outW = Math.max(2, outW - 1);
+      if (outH % 2 !== 0) outH = Math.max(2, outH - 1);
+      return { width: outW, height: outH };
+    }
+
+    function speedVideoBuildTimeline(durationValue) {
+      const duration = Math.max(0, Number(durationValue) || 0);
+      const epsilon = 0.0001;
+      const baseSpeed = speedVideoNormalizeRate(speedVideoBaseSpeedSelect?.value || '1');
+      const cleaned = speedVideoSegments
+        .map((segment, index) => ({
+          start: reverseVideoClamp(Number(segment.start) || 0, 0, duration),
+          end: reverseVideoClamp(Number(segment.end) || 0, 0, duration),
+          speed: speedVideoNormalizeRate(segment.speed),
+          index,
+        }))
+        .filter(segment => segment.end - segment.start > epsilon)
+        .sort((a, b) => a.start - b.start || a.end - b.end || a.index - b.index);
+
+      for (let i = 1; i < cleaned.length; i++) {
+        if (cleaned[i].start < cleaned[i - 1].end - epsilon) {
+          return {
+            ok: false,
+            baseSpeed,
+            message: `Section ${cleaned[i].index + 1} overlaps another section. Adjust the timing so sections do not overlap.`,
+          };
+        }
+      }
+
+      let outputCursor = 0;
+      const spans = [];
+      const addSpan = (sourceStart, sourceEnd, speed, kind) => {
+        const sourceDuration = sourceEnd - sourceStart;
+        if (sourceDuration <= epsilon) return;
+        const outputDuration = sourceDuration / Math.max(0.001, speed);
+        spans.push({
+          sourceStart,
+          sourceEnd,
+          speed,
+          kind,
+          outputStart: outputCursor,
+          outputEnd: outputCursor + outputDuration,
+          outputDuration,
+        });
+        outputCursor += outputDuration;
+      };
+
+      let cursor = 0;
+      cleaned.forEach(segment => {
+        if (segment.start > cursor + epsilon) {
+          addSpan(cursor, segment.start, baseSpeed, 'base');
+        }
+        addSpan(segment.start, segment.end, segment.speed, 'custom');
+        cursor = Math.max(cursor, segment.end);
+      });
+
+      if (cursor < duration - epsilon) {
+        addSpan(cursor, duration, baseSpeed, 'base');
+      }
+      if (!spans.length && duration > 0) {
+        addSpan(0, duration, baseSpeed, 'base');
+      }
+
+      return {
+        ok: true,
+        duration,
+        baseSpeed,
+        customSegments: cleaned,
+        customSegmentCount: cleaned.length,
+        spans,
+        outputDuration: outputCursor,
+      };
+    }
+
+    function speedVideoGetRateAtSourceTime(sourceTime, timeline) {
+      const safeTimeline = timeline && timeline.ok ? timeline : speedVideoBuildTimeline(speedVideoGetDuration());
+      if (!safeTimeline.ok) return speedVideoNormalizeRate(speedVideoBaseSpeedSelect?.value || '1');
+      const time = reverseVideoClamp(Number(sourceTime) || 0, 0, safeTimeline.duration || 0);
+      for (const span of safeTimeline.spans) {
+        if (time >= span.sourceStart && time < span.sourceEnd) {
+          return span.speed;
+        }
+      }
+      return safeTimeline.baseSpeed;
+    }
+
+    function speedVideoUpdatePlayheadBadge() {
+      if (!speedVideoPlayheadBadge) return;
+      const duration = Number(speedVideoPreview?.duration) || speedVideoGetDuration();
+      const current = Number(speedVideoPreview?.currentTime) || 0;
+      const label = duration
+        ? `Playhead: ${reverseVideoFormatClock(current)} / ${reverseVideoFormatClock(duration)}`
+        : `Playhead: ${reverseVideoFormatClock(current)}`;
+      speedVideoPlayheadBadge.textContent = label;
+    }
+
+    function speedVideoUpdatePreviewRate(force) {
+      speedVideoUpdatePlayheadBadge();
+
+      if (!speedVideoPreview || speedVideoPreviewActive !== 'source' || !speedVideoSourceUrl) {
+        if (speedVideoCurrentRateBadge) speedVideoCurrentRateBadge.textContent = 'Current speed: exported video';
+        speedVideoSetRateMeta('Edited preview shows the most recent exported file.');
+        return;
+      }
+
+      const timeline = speedVideoBuildTimeline(Number(speedVideoPreview.duration) || speedVideoGetDuration());
+      const currentTime = Number(speedVideoPreview.currentTime) || 0;
+      const rate = timeline.ok
+        ? speedVideoGetRateAtSourceTime(currentTime, timeline)
+        : speedVideoNormalizeRate(speedVideoBaseSpeedSelect?.value || '1');
+
+      try {
+        if (force || Math.abs((speedVideoPreview.playbackRate || 1) - rate) > 0.01) {
+          speedVideoPreview.playbackRate = rate;
+        }
+      } catch {}
+
+      if (speedVideoCurrentRateBadge) speedVideoCurrentRateBadge.textContent = `Current speed: ${speedVideoFormatRate(rate)}`;
+      speedVideoSetRateMeta(
+        timeline.ok
+          ? `Current preview speed: ${speedVideoFormatRate(rate)}`
+          : 'Fix the section timing to preview the planned pacing.'
+      );
+    }
+
+    function speedVideoRefreshPreview() {
+      if (!speedVideoPreview) return;
+
+      let requested = speedVideoPreviewModeSelect?.value || 'source';
+      if (requested === 'output' && !speedVideoOutputUrl && speedVideoPreviewModeSelect) {
+        speedVideoPreviewModeSelect.value = 'source';
+        requested = 'source';
+      }
+      let nextUrl = null;
+      let nextLabel = 'Preview: original pacing';
+      let nextActive = 'none';
+
+      if (requested === 'output' && speedVideoOutputUrl) {
+        nextUrl = speedVideoOutputUrl;
+        nextLabel = 'Preview: edited video';
+        nextActive = 'output';
+      } else if (speedVideoSourceUrl) {
+        nextUrl = speedVideoSourceUrl;
+        nextLabel = 'Preview: original pacing';
+        nextActive = 'source';
+      }
+
+      speedVideoSetPreviewBadge(nextLabel);
+
+      if (!nextUrl) {
+        try {
+          speedVideoPreview.pause();
+          speedVideoPreview.removeAttribute('src');
+          speedVideoPreview.load();
+        } catch {}
+        speedVideoPreviewActive = 'none';
+        speedVideoSetPreviewVisible(false);
+        speedVideoUpdatePreviewRate(true);
+        return;
+      }
+
+      if (speedVideoPreviewActive !== nextActive || speedVideoPreview.src !== nextUrl) {
+        try {
+          speedVideoPreview.pause();
+        } catch {}
+        speedVideoPreview.src = nextUrl;
+        speedVideoPreview.load();
+      }
+
+      speedVideoPreviewActive = nextActive;
+      speedVideoSetPreviewVisible(true);
+
+      if (nextActive === 'output') {
+        try {
+          speedVideoPreview.playbackRate = 1;
+        } catch {}
+      }
+      speedVideoUpdatePreviewRate(true);
+    }
+
+    function speedVideoRefreshSummary() {
+      if (!speedVideoSummary) return;
+
+      const duration = speedVideoGetDuration();
+      const baseSpeed = speedVideoNormalizeRate(speedVideoBaseSpeedSelect?.value || '1');
+
+      if (!duration) {
+        speedVideoSummary.innerHTML = [
+          '<div class="speed-video-summary-row">',
+          `<span class="badge">Normal speed elsewhere: ${speedVideoFormatRate(baseSpeed)}</span>`,
+          `<span class="badge">${speedVideoSegments.length} custom section${speedVideoSegments.length === 1 ? '' : 's'}</span>`,
+          '</div>',
+          '<div class="tiny">Upload or finish loading a video to validate timing and estimate the edited length.</div>',
+        ].join('');
+        return;
+      }
+
+      const timeline = speedVideoBuildTimeline(duration);
+      if (!timeline.ok) {
+        speedVideoSummary.innerHTML = [
+          '<div class="speed-video-summary-row">',
+          '<span class="badge danger">Fix section timing</span>',
+          `<span class="badge">Normal speed elsewhere: ${speedVideoFormatRate(baseSpeed)}</span>`,
+          '</div>',
+          `<div>${timeline.message}</div>`,
+        ].join('');
+        return;
+      }
+
+      const rows = [
+        '<div class="speed-video-summary-row">',
+        `<span class="badge">Source: ${reverseVideoFormatClock(timeline.duration)}</span>`,
+        `<span class="badge">Estimated edited length: ${reverseVideoFormatClock(timeline.outputDuration)}</span>`,
+        `<span class="badge">${timeline.customSegmentCount} custom section${timeline.customSegmentCount === 1 ? '' : 's'}</span>`,
+        `<span class="badge">Normal speed elsewhere: ${speedVideoFormatRate(timeline.baseSpeed)}</span>`,
+        '</div>',
+      ];
+
+      if (timeline.customSegmentCount) {
+        rows.push('<div class="tiny">Custom sections are applied on top of the normal speed setting. Unmarked gaps keep the normal speed.</div>');
+      } else {
+        rows.push('<div class="tiny">No custom sections yet. The whole video will export at the normal speed above.</div>');
+      }
+
+      speedVideoSummary.innerHTML = rows.join('');
+    }
+
+    function speedVideoRenderSegments() {
+      if (!speedVideoSegmentList) return;
+
+      if (!speedVideoSegments.length) {
+        speedVideoSegmentList.innerHTML = '<li class="speed-video-segment-empty">No custom speed sections yet.</li>';
+        speedVideoRefreshSummary();
+        speedVideoUpdateButtons();
+        speedVideoUpdatePreviewRate(true);
+        return;
+      }
+
+      speedVideoSegmentList.innerHTML = speedVideoSegments.map((segment, index) => {
+        const start = Math.max(0, Number(segment.start) || 0);
+        const end = Math.max(start, Number(segment.end) || start);
+        const speed = speedVideoNormalizeRate(segment.speed);
+        return `
+          <li class="speed-video-segment-item" data-index="${index}">
+            <div class="speed-video-segment-top">
+              <strong>Section ${index + 1}</strong>
+              <span class="badge">${reverseVideoFormatClock(start)} to ${reverseVideoFormatClock(end)} at ${speedVideoFormatRate(speed)}</span>
+            </div>
+            <div class="speed-video-segment-grid">
+              <div>
+                <label>Start</label>
+                <input class="speed-video-segment-start" type="number" min="0" step="0.1" value="${start.toFixed(1)}" ${speedVideoWorking ? 'disabled' : ''} />
+              </div>
+              <div>
+                <label>End</label>
+                <input class="speed-video-segment-end" type="number" min="0" step="0.1" value="${end.toFixed(1)}" ${speedVideoWorking ? 'disabled' : ''} />
+              </div>
+              <div>
+                <label>Speed</label>
+                <select class="speed-video-segment-speed" ${speedVideoWorking ? 'disabled' : ''}>
+                  ${speedVideoBuildRateOptions(speed)}
+                </select>
+              </div>
+              <button class="btn-small speed-video-remove-btn" type="button" ${speedVideoWorking ? 'disabled' : ''}>Remove</button>
+            </div>
+          </li>
+        `;
+      }).join('');
+
+      speedVideoSegmentList.querySelectorAll('.speed-video-segment-item').forEach(item => {
+        const index = Number(item.getAttribute('data-index'));
+        const startInput = item.querySelector('.speed-video-segment-start');
+        const endInput = item.querySelector('.speed-video-segment-end');
+        const speedSelect = item.querySelector('.speed-video-segment-speed');
+        const removeBtn = item.querySelector('.speed-video-remove-btn');
+
+        const syncSegment = (rerender) => {
+          const segment = speedVideoSegments[index];
+          if (!segment) return;
+          segment.start = Math.max(0, Number(startInput?.value) || 0);
+          segment.end = Math.max(0, Number(endInput?.value) || 0);
+          segment.speed = speedVideoNormalizeRate(speedSelect?.value || '1');
+          speedVideoResetOutput();
+          speedVideoRefreshPreview();
+          speedVideoRefreshSummary();
+          speedVideoUpdatePreviewRate(true);
+          speedVideoUpdateButtons();
+          if (rerender) speedVideoRenderSegments();
+        };
+
+        startInput?.addEventListener('input', () => syncSegment(false));
+        endInput?.addEventListener('input', () => syncSegment(false));
+        speedSelect?.addEventListener('input', () => syncSegment(false));
+        startInput?.addEventListener('change', () => syncSegment(true));
+        endInput?.addEventListener('change', () => syncSegment(true));
+        speedSelect?.addEventListener('change', () => syncSegment(true));
+        removeBtn?.addEventListener('click', () => {
+          speedVideoSegments.splice(index, 1);
+          speedVideoResetOutput();
+          speedVideoRefreshPreview();
+          speedVideoRenderSegments();
+          speedVideoSetStatus('Removed that speed section.');
+        });
+      });
+
+      speedVideoRefreshSummary();
+      speedVideoUpdateButtons();
+      speedVideoUpdatePreviewRate(true);
+    }
+
+    function speedVideoClearAll(options = {}) {
+      const keepInput = !!options.keepInput;
+      const keepSettings = !!options.keepSettings;
+
+      try {
+        if (speedVideoPreview) {
+          speedVideoPreview.pause();
+          speedVideoPreview.removeAttribute('src');
+          speedVideoPreview.load();
+        }
+        if (speedVideoSource) {
+          speedVideoSource.pause();
+          speedVideoSource.removeAttribute('src');
+          speedVideoSource.load();
+        }
+      } catch {}
+
+      speedVideoRevokeObjectUrls();
+      speedVideoOutputBlob = null;
+      speedVideoSourceFileName = '';
+      speedVideoSourceFileSize = 0;
+      speedVideoPreviewActive = 'none';
+      speedVideoSegments = [];
+
+      if (!keepInput && speedVideoInput) speedVideoInput.value = '';
+      if (!keepSettings) {
+        if (speedVideoBaseSpeedSelect) speedVideoBaseSpeedSelect.value = '1';
+        if (speedVideoPreviewModeSelect) speedVideoPreviewModeSelect.value = 'source';
+        if (speedVideoMaxSizeSelect) speedVideoMaxSizeSelect.value = '720';
+        if (speedVideoFpsSelect) speedVideoFpsSelect.value = '30';
+      } else if (speedVideoPreviewModeSelect) {
+        speedVideoPreviewModeSelect.value = 'source';
+      }
+
+      if (speedVideoDraftStart) speedVideoDraftStart.value = '0';
+      if (speedVideoDraftEnd) speedVideoDraftEnd.value = '3';
+      if (speedVideoDraftSpeed) speedVideoDraftSpeed.value = '1';
+
+      speedVideoSetPreviewVisible(false);
+      speedVideoSetPreviewBadge('Preview: original pacing');
+      speedVideoSetMeta('No video loaded');
+      speedVideoSetRateMeta('Current preview speed: 1.00x');
+      if (speedVideoCurrentRateBadge) speedVideoCurrentRateBadge.textContent = 'Current speed: 1.00x';
+      if (speedVideoPlayheadBadge) speedVideoPlayheadBadge.textContent = 'Playhead: 0:00.0';
+      speedVideoSetStatus('Ready when you are.');
+      speedVideoSetProgress(0, 'Upload a video to get started.');
+      speedVideoRenderSegments();
+      speedVideoUpdateButtons();
+    }
+
+    async function speedVideoHandleUpload() {
+      const file = speedVideoInput?.files?.[0];
+      if (!file) {
+        speedVideoClearAll({ keepInput: true, keepSettings: true });
+        return;
+      }
+
+      speedVideoClearAll({ keepInput: true, keepSettings: true });
+      speedVideoSourceFileName = file.name || 'video';
+      speedVideoSourceFileSize = Number(file.size) || 0;
+      speedVideoSourceUrl = URL.createObjectURL(file);
+      if (speedVideoPreviewModeSelect) speedVideoPreviewModeSelect.value = 'source';
+
+      speedVideoSetStatus('Loading video preview...');
+      speedVideoSetProgress(0, 'Loading video...');
+      speedVideoUpdateButtons();
+
+      if (!speedVideoSource || !speedVideoPreview) {
+        speedVideoSetStatus('Video preview is not available in this browser.');
+        return;
+      }
+
+      speedVideoSource.src = speedVideoSourceUrl;
+      speedVideoSource.muted = true;
+      speedVideoSource.loop = false;
+      speedVideoSource.load();
+
+      speedVideoPreview.src = speedVideoSourceUrl;
+      speedVideoPreview.muted = true;
+      speedVideoPreview.loop = true;
+      speedVideoPreview.load();
+
+      try {
+        await reverseVideoEnsureLoaded(speedVideoSource);
+        const width = speedVideoSource.videoWidth || 0;
+        const height = speedVideoSource.videoHeight || 0;
+        const duration = Number(speedVideoSource.duration) || 0;
+        const parts = [];
+        if (speedVideoSourceFileName) parts.push(speedVideoSourceFileName);
+        if (width && height) parts.push(`${width}x${height}`);
+        if (duration) parts.push(reverseVideoFormatClock(duration));
+        if (speedVideoSourceFileSize) parts.push(reverseVideoFormatBytes(speedVideoSourceFileSize));
+        speedVideoSetMeta(parts.join(' | ') || 'Video loaded');
+        if (speedVideoDraftEnd) {
+          speedVideoDraftEnd.value = duration ? Math.min(duration, 3).toFixed(1) : '3';
+        }
+        speedVideoSetStatus('Video loaded. Mark the sections you want to change, then create the edited video.');
+        speedVideoSetProgress(0, 'Video loaded. Add sections or export at normal speed.');
+        speedVideoRefreshPreview();
+        speedVideoRefreshSummary();
+      } catch {
+        speedVideoSetStatus('Could not load that video. Try a different file.');
+        speedVideoSetMeta('Could not read video');
+        speedVideoRevokeObjectUrls({ keepOutput: true });
+        try {
+          speedVideoPreview.removeAttribute('src');
+          speedVideoPreview.load();
+          speedVideoSource.removeAttribute('src');
+          speedVideoSource.load();
+        } catch {}
+        speedVideoSourceUrl = null;
+        speedVideoSetPreviewVisible(false);
+      } finally {
+        speedVideoUpdateButtons();
+      }
+    }
+
+    function speedVideoUsePlayhead(target) {
+      if (!speedVideoSourceUrl || !speedVideoPreview || speedVideoPreviewActive !== 'source') {
+        speedVideoSetStatus('Switch the preview back to the original video before using the playhead buttons.');
+        return;
+      }
+
+      const duration = Number(speedVideoPreview.duration) || speedVideoGetDuration();
+      const currentTime = reverseVideoClamp(Number(speedVideoPreview.currentTime) || 0, 0, duration || Number.MAX_SAFE_INTEGER);
+
+      if (target === 'start' && speedVideoDraftStart) {
+        speedVideoDraftStart.value = currentTime.toFixed(1);
+        const endValue = Number(speedVideoDraftEnd?.value) || 0;
+        if (!endValue || endValue <= currentTime) {
+          const nextEnd = duration ? Math.min(duration, currentTime + 1) : currentTime + 1;
+          if (speedVideoDraftEnd) speedVideoDraftEnd.value = nextEnd.toFixed(1);
+        }
+      }
+
+      if (target === 'end' && speedVideoDraftEnd) {
+        speedVideoDraftEnd.value = currentTime.toFixed(1);
+        const startValue = Number(speedVideoDraftStart?.value) || 0;
+        if (currentTime <= startValue && speedVideoDraftStart) {
+          speedVideoDraftStart.value = Math.max(0, currentTime - 1).toFixed(1);
+        }
+      }
+
+      speedVideoSetStatus(`Marked ${target === 'start' ? 'section start' : 'section end'} at ${reverseVideoFormatClock(currentTime)}.`);
+    }
+
+    function speedVideoAddSegment() {
+      if (!speedVideoSourceUrl) {
+        alert('Upload a video first.');
+        return;
+      }
+
+      const duration = speedVideoGetDuration();
+      const start = Math.max(0, Number(speedVideoDraftStart?.value) || 0);
+      const end = Math.max(0, Number(speedVideoDraftEnd?.value) || 0);
+      const speed = speedVideoNormalizeRate(speedVideoDraftSpeed?.value || '1');
+
+      if (end <= start) {
+        alert('Section end must be later than section start.');
+        return;
+      }
+      if (duration && start >= duration) {
+        alert('Section start is outside this video.');
+        return;
+      }
+
+      const clipped = {
+        start: duration ? Math.min(start, duration) : start,
+        end: duration ? Math.min(end, duration) : end,
+        speed,
+      };
+
+      if (clipped.end <= clipped.start) {
+        alert('That section is too small after clipping to the video length.');
+        return;
+      }
+
+      const overlaps = speedVideoSegments.some(segment =>
+        clipped.start < (Number(segment.end) || 0) - 0.0001 &&
+        clipped.end > (Number(segment.start) || 0) + 0.0001
+      );
+      if (overlaps) {
+        alert('That section overlaps an existing one. Adjust the timing or edit the existing section instead.');
+        return;
+      }
+
+      speedVideoSegments.push(clipped);
+      speedVideoSegments.sort((a, b) => a.start - b.start || a.end - b.end);
+      speedVideoResetOutput();
+      speedVideoRefreshPreview();
+      speedVideoRenderSegments();
+      speedVideoSetStatus(`Added a section from ${reverseVideoFormatClock(clipped.start)} to ${reverseVideoFormatClock(clipped.end)} at ${speedVideoFormatRate(speed)}.`);
+
+      if (speedVideoDraftStart) speedVideoDraftStart.value = clipped.end.toFixed(1);
+      if (speedVideoDraftEnd) {
+        const nextEnd = duration ? Math.min(duration, clipped.end + 1) : clipped.end + 1;
+        speedVideoDraftEnd.value = nextEnd.toFixed(1);
+      }
+    }
+
+    function speedVideoApplyWholeVideo() {
+      const duration = speedVideoGetDuration();
+      if (!duration) {
+        alert('Load a video first so the tool knows the video length.');
+        return;
+      }
+
+      const speed = speedVideoNormalizeRate(speedVideoDraftSpeed?.value || '1');
+      speedVideoSegments = [{ start: 0, end: duration, speed }];
+      speedVideoResetOutput();
+      speedVideoRefreshPreview();
+      speedVideoRenderSegments();
+      speedVideoSetStatus(`Applied ${speedVideoFormatRate(speed)} to the whole video.`);
+    }
+
+    function speedVideoStartCanvasLoop(ctx, videoEl, width, height, progressFn) {
+      let active = true;
+      let rafId = 0;
+
+      const draw = () => {
+        if (!active) return;
+        if (videoEl.readyState >= 2) {
+          ctx.clearRect(0, 0, width, height);
+          ctx.drawImage(videoEl, 0, 0, width, height);
+          if (typeof progressFn === 'function') progressFn();
+        }
+        rafId = requestAnimationFrame(draw);
+      };
+
+      draw();
+
+      return () => {
+        active = false;
+        if (rafId) cancelAnimationFrame(rafId);
+      };
+    }
+
+    async function speedVideoPlaySpan(videoEl, span, onTick) {
+      const tolerance = Math.max(0.03, 1 / Math.max(12, parseInt(speedVideoFpsSelect?.value || '30', 10) || 30));
+
+      return new Promise(async (resolve, reject) => {
+        let rafId = 0;
+        let done = false;
+
+        const cleanup = () => {
+          if (done) return;
+          done = true;
+          if (rafId) cancelAnimationFrame(rafId);
+          videoEl.removeEventListener('ended', onEnded);
+          videoEl.removeEventListener('error', onError);
+        };
+
+        const onEnded = () => {
+          cleanup();
+          resolve();
+        };
+
+        const onError = () => {
+          cleanup();
+          reject(new Error('Video playback failed'));
+        };
+
+        const watch = () => {
+          const currentTime = Number(videoEl.currentTime) || 0;
+          if (typeof onTick === 'function') onTick(currentTime);
+          if (currentTime >= span.sourceEnd - tolerance) {
+            cleanup();
+            resolve();
+            return;
+          }
+          rafId = requestAnimationFrame(watch);
+        };
+
+        videoEl.addEventListener('ended', onEnded, { once: true });
+        videoEl.addEventListener('error', onError, { once: true });
+
+        try {
+          await videoEl.play();
+          watch();
+        } catch (err) {
+          cleanup();
+          reject(err);
+        }
+      });
+    }
+
+    async function speedVideoProcess() {
+      if (speedVideoWorking) return;
+      if (!speedVideoSourceUrl || !speedVideoSource || !speedVideoCanvas) {
+        alert('Upload a video first.');
+        return;
+      }
+      if (typeof MediaRecorder === 'undefined' || typeof speedVideoCanvas.captureStream !== 'function') {
+        alert('This browser cannot export edited video here. Try a Chromium-based browser.');
+        return;
+      }
+
+      await reverseVideoEnsureLoaded(speedVideoSource);
+      const timeline = speedVideoBuildTimeline(speedVideoGetDuration());
+      if (!timeline.ok) {
+        alert(timeline.message);
+        speedVideoSetStatus(timeline.message);
+        return;
+      }
+
+      speedVideoWorking = true;
+      speedVideoUpdateButtons();
+      speedVideoResetOutput();
+      speedVideoRefreshPreview();
+
+      let stream = null;
+      let recorder = null;
+      let recorderError = null;
+      let stopCanvasLoop = null;
+      let lastProgress = -1;
+
+      try {
+        const srcW = speedVideoSource.videoWidth || 0;
+        const srcH = speedVideoSource.videoHeight || 0;
+        if (!srcW || !srcH || !timeline.outputDuration) {
+          throw new Error('Video details are not available yet');
+        }
+
+        const fps = reverseVideoClamp(parseInt(speedVideoFpsSelect?.value || '30', 10) || 30, 12, 60);
+        const target = speedVideoGetTargetSize(srcW, srcH);
+        speedVideoCanvas.width = target.width;
+        speedVideoCanvas.height = target.height;
+
+        const ctx = speedVideoCanvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) throw new Error('Canvas is not available');
+
+        try {
+          speedVideoPreview.pause();
+        } catch {}
+
+        const mimeType = reverseVideoPickWebMMime();
+        stream = speedVideoCanvas.captureStream(fps);
+        recorder = mimeType
+          ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8_000_000 })
+          : new MediaRecorder(stream, { videoBitsPerSecond: 8_000_000 });
+
+        const chunks = [];
+        const recorderDone = new Promise(resolve => {
+          recorder.ondataavailable = event => {
+            if (event.data && event.data.size > 0) chunks.push(event.data);
+          };
+          recorder.onerror = event => {
+            recorderError = event.error || new Error('Recorder failed');
+          };
+          recorder.onstop = resolve;
+        });
+
+        stopCanvasLoop = speedVideoStartCanvasLoop(ctx, speedVideoSource, target.width, target.height, () => {
+          const currentSpan = timeline.spans.find(span => {
+            const currentTime = Number(speedVideoSource.currentTime) || 0;
+            return currentTime >= span.sourceStart && currentTime <= span.sourceEnd + 0.05;
+          });
+          if (!currentSpan) return;
+          const sourceProgress = reverseVideoClamp(
+            (Number(speedVideoSource.currentTime) || 0) - currentSpan.sourceStart,
+            0,
+            currentSpan.sourceEnd - currentSpan.sourceStart
+          );
+          const outputProgress = currentSpan.outputStart + (sourceProgress / Math.max(0.001, currentSpan.speed));
+          const pct = timeline.outputDuration ? Math.round((outputProgress / timeline.outputDuration) * 100) : 0;
+          if (pct !== lastProgress) {
+            lastProgress = pct;
+            speedVideoSetProgress(
+              pct,
+              `Building edited video: ${reverseVideoFormatClock(outputProgress)} of ${reverseVideoFormatClock(timeline.outputDuration)}`
+            );
+          }
+        });
+
+        speedVideoSetStatus('Building your edited video...');
+        speedVideoSetProgress(1, `Building edited video: 0 of ${reverseVideoFormatClock(timeline.outputDuration)}`);
+        recorder.start(500);
+
+        for (let i = 0; i < timeline.spans.length; i++) {
+          const span = timeline.spans[i];
+          await reverseVideoSeek(speedVideoSource, span.sourceStart);
+          speedVideoSource.playbackRate = span.speed;
+          speedVideoSource.defaultPlaybackRate = span.speed;
+          ctx.clearRect(0, 0, target.width, target.height);
+          ctx.drawImage(speedVideoSource, 0, 0, target.width, target.height);
+          speedVideoSetStatus(`Processing part ${i + 1} of ${timeline.spans.length} at ${speedVideoFormatRate(span.speed)}...`);
+          await speedVideoPlaySpan(speedVideoSource, span, currentTime => {
+            const sourceProgress = reverseVideoClamp(currentTime - span.sourceStart, 0, span.sourceEnd - span.sourceStart);
+            const outputProgress = span.outputStart + (sourceProgress / Math.max(0.001, span.speed));
+            const pct = timeline.outputDuration ? Math.round((outputProgress / timeline.outputDuration) * 100) : 0;
+            if (pct !== lastProgress) {
+              lastProgress = pct;
+              speedVideoSetProgress(
+                pct,
+                `Building edited video: ${reverseVideoFormatClock(outputProgress)} of ${reverseVideoFormatClock(timeline.outputDuration)}`
+              );
+            }
+          });
+          speedVideoSource.pause();
+        }
+
+        await reverseVideoSleep(220);
+        if (stopCanvasLoop) {
+          stopCanvasLoop();
+          stopCanvasLoop = null;
+        }
+        if (recorder.state !== 'inactive') recorder.stop();
+        await recorderDone;
+
+        if (recorderError) throw recorderError;
+        const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' });
+        if (!blob.size) throw new Error('Empty output video');
+
+        speedVideoOutputBlob = blob;
+        speedVideoOutputUrl = URL.createObjectURL(blob);
+        if (speedVideoPreviewModeSelect) speedVideoPreviewModeSelect.value = 'output';
+        speedVideoRefreshPreview();
+        speedVideoSetStatus(`Done. Your edited video is ready to preview and download (${reverseVideoFormatClock(timeline.outputDuration)} total).`);
+        speedVideoSetProgress(100, 'Done. Edited video is ready.');
+      } catch (err) {
+        speedVideoSetStatus('Could not create the edited video with the current settings. Try a smaller output size or simpler pacing.');
+        speedVideoSetProgress(0, 'Edited video failed. Try again with easier settings.');
+        alert('Edited video failed in this browser. Try a smaller output size or fewer extreme speed changes.');
+      } finally {
+        speedVideoWorking = false;
+        try {
+          speedVideoSource.pause();
+          speedVideoSource.playbackRate = 1;
+          speedVideoSource.defaultPlaybackRate = 1;
+          speedVideoSource.currentTime = 0;
+        } catch {}
+        if (stopCanvasLoop) stopCanvasLoop();
+        if (stream) {
+          try { stream.getTracks().forEach(track => track.stop()); } catch {}
+        }
+        speedVideoUpdateButtons();
+      }
+    }
+
+    function speedVideoDownloadResult() {
+      if (!speedVideoOutputBlob) {
+        alert('No edited video yet. Click "Create edited video" first.');
+        return;
+      }
+      const baseName = (speedVideoSourceFileName || 'creatorforge-video').replace(/\.[^.]+$/, '');
+      reverseVideoDownloadBlob(speedVideoOutputBlob, `${baseName}_speed-edited.webm`);
+    }
+
+    function initSpeedVideoTool() {
+      if (speedVideoToolInitialized) return;
+      speedVideoToolInitialized = true;
+
+      speedVideoInput?.addEventListener('change', speedVideoHandleUpload);
+      speedVideoBaseSpeedSelect?.addEventListener('change', () => {
+        speedVideoResetOutput();
+        speedVideoRefreshPreview();
+        speedVideoRefreshSummary();
+        speedVideoUpdatePreviewRate(true);
+        speedVideoSetStatus('Updated the normal speed for unmarked parts of the video.');
+      });
+      speedVideoPreviewModeSelect?.addEventListener('change', () => {
+        speedVideoRefreshPreview();
+        if ((speedVideoPreviewModeSelect?.value || 'source') === 'output' && !speedVideoOutputBlob) {
+          speedVideoSetStatus('No edited video yet. Click "Create edited video" when you are ready.');
+        }
+      });
+      speedVideoMaxSizeSelect?.addEventListener('change', () => {
+        const hadOutput = !!speedVideoOutputBlob;
+        speedVideoResetOutput();
+        speedVideoRefreshPreview();
+        if (hadOutput) speedVideoSetStatus('Output size changed. Create the edited video again to refresh the download.');
+      });
+      speedVideoFpsSelect?.addEventListener('change', () => {
+        const hadOutput = !!speedVideoOutputBlob;
+        speedVideoResetOutput();
+        speedVideoRefreshPreview();
+        if (hadOutput) speedVideoSetStatus('Output smoothness changed. Create the edited video again to refresh the download.');
+      });
+      speedVideoMarkStartBtn?.addEventListener('click', () => speedVideoUsePlayhead('start'));
+      speedVideoMarkEndBtn?.addEventListener('click', () => speedVideoUsePlayhead('end'));
+      speedVideoAddSegmentBtn?.addEventListener('click', speedVideoAddSegment);
+      speedVideoWholeVideoBtn?.addEventListener('click', speedVideoApplyWholeVideo);
+      speedVideoClearSegmentsBtn?.addEventListener('click', () => {
+        speedVideoSegments = [];
+        speedVideoResetOutput();
+        speedVideoRefreshPreview();
+        speedVideoRenderSegments();
+        speedVideoSetStatus('Cleared all custom speed sections.');
+      });
+      speedVideoStartBtn?.addEventListener('click', speedVideoProcess);
+      speedVideoDownloadBtn?.addEventListener('click', speedVideoDownloadResult);
+      speedVideoResetBtn?.addEventListener('click', () => speedVideoClearAll());
+
+      speedVideoPreview?.addEventListener('loadedmetadata', () => speedVideoUpdatePreviewRate(true));
+      speedVideoPreview?.addEventListener('play', () => speedVideoUpdatePreviewRate(true));
+      speedVideoPreview?.addEventListener('seeked', () => speedVideoUpdatePreviewRate(true));
+      speedVideoPreview?.addEventListener('timeupdate', () => speedVideoUpdatePreviewRate(false));
+      speedVideoPreview?.addEventListener('pause', () => speedVideoUpdatePlayheadBadge());
+      speedVideoPreview?.addEventListener('ended', () => speedVideoUpdatePlayheadBadge());
+
+      speedVideoClearAll({ keepInput: true, keepSettings: true });
+    }
+
     /* ---------- Photo & Video Collage Maker ---------- */
     const COLLAGE_PRESETS = {
       'square-duo': {
@@ -4841,6 +6109,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderPlanner();
       initReverseVideoTool();
+      initSpeedVideoTool();
       initCollageTool();
     });
   </script>
