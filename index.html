@@ -4284,6 +4284,7 @@
     let speedVideoSourceFileSize = 0;
     let speedVideoWorking = false;
     let speedVideoPreviewActive = 'none';
+    let speedVideoPreviewMonitorRaf = 0;
     let speedVideoSegments = [];
 
     const speedVideoInput = document.getElementById('speedVideoInput');
@@ -4695,6 +4696,32 @@
       return previewTime >= timeline.outputDuration ? timeline.duration : previewTime;
     }
 
+    function speedVideoStopPreviewMonitor() {
+      if (speedVideoPreviewMonitorRaf) {
+        cancelAnimationFrame(speedVideoPreviewMonitorRaf);
+        speedVideoPreviewMonitorRaf = 0;
+      }
+    }
+
+    function speedVideoPreviewMonitorTick() {
+      speedVideoPreviewMonitorRaf = 0;
+      if (!speedVideoPreview || speedVideoPreviewActive !== 'source') return;
+      if (speedVideoPreview.paused || speedVideoPreview.ended) {
+        speedVideoUpdatePreviewRate(true);
+        return;
+      }
+
+      speedVideoUpdatePreviewRate(true);
+      speedVideoPreviewMonitorRaf = requestAnimationFrame(speedVideoPreviewMonitorTick);
+    }
+
+    function speedVideoStartPreviewMonitor() {
+      if (!speedVideoPreview || speedVideoPreviewActive !== 'source') return;
+      if (speedVideoPreview.paused || speedVideoPreview.ended) return;
+      if (speedVideoPreviewMonitorRaf) return;
+      speedVideoPreviewMonitorRaf = requestAnimationFrame(speedVideoPreviewMonitorTick);
+    }
+
     async function speedVideoSeekPreviewTo(timeSeconds) {
       const videoEl = speedVideoPreview;
       if (!videoEl || !speedVideoSourceUrl) return;
@@ -4742,6 +4769,7 @@
       try {
         if (force || Math.abs((speedVideoPreview.playbackRate || 1) - rate) > 0.01) {
           speedVideoPreview.playbackRate = rate;
+          speedVideoPreview.defaultPlaybackRate = rate;
         }
       } catch {}
 
@@ -4755,6 +4783,7 @@
 
     function speedVideoRefreshPreview() {
       if (!speedVideoPreview) return;
+      speedVideoStopPreviewMonitor();
 
       let requested = speedVideoPreviewModeSelect?.value || 'source';
       if (requested === 'output' && !speedVideoOutputUrl && speedVideoPreviewModeSelect) {
@@ -4806,6 +4835,7 @@
         } catch {}
       }
       speedVideoUpdatePreviewRate(true);
+      speedVideoStartPreviewMonitor();
       speedVideoRefreshTimeline();
     }
 
@@ -4947,6 +4977,7 @@
     function speedVideoClearAll(options = {}) {
       const keepInput = !!options.keepInput;
       const keepSettings = !!options.keepSettings;
+      speedVideoStopPreviewMonitor();
 
       try {
         if (speedVideoPreview) {
@@ -5472,11 +5503,23 @@
       speedVideoResetBtn?.addEventListener('click', () => speedVideoClearAll());
 
       speedVideoPreview?.addEventListener('loadedmetadata', () => speedVideoUpdatePreviewRate(true));
-      speedVideoPreview?.addEventListener('play', () => speedVideoUpdatePreviewRate(true));
-      speedVideoPreview?.addEventListener('seeked', () => speedVideoUpdatePreviewRate(true));
+      speedVideoPreview?.addEventListener('play', () => {
+        speedVideoUpdatePreviewRate(true);
+        speedVideoStartPreviewMonitor();
+      });
+      speedVideoPreview?.addEventListener('seeked', () => {
+        speedVideoUpdatePreviewRate(true);
+        speedVideoStartPreviewMonitor();
+      });
       speedVideoPreview?.addEventListener('timeupdate', () => speedVideoUpdatePreviewRate(false));
-      speedVideoPreview?.addEventListener('pause', () => speedVideoUpdatePlayheadBadge());
-      speedVideoPreview?.addEventListener('ended', () => speedVideoUpdatePlayheadBadge());
+      speedVideoPreview?.addEventListener('pause', () => {
+        speedVideoStopPreviewMonitor();
+        speedVideoUpdatePlayheadBadge();
+      });
+      speedVideoPreview?.addEventListener('ended', () => {
+        speedVideoStopPreviewMonitor();
+        speedVideoUpdatePlayheadBadge();
+      });
 
       speedVideoClearAll({ keepInput: true, keepSettings: true });
     }
